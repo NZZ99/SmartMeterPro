@@ -209,6 +209,18 @@
             color: #00f2ff;
             text-shadow: 0 0 8px rgba(0, 242, 255, 0.6);
         }
+        	/* Info Page အတွင်း ပုံထည့်ရန် CSS */
+.info-bg-image {
+    position: absolute;
+    top: 30;
+    left: 60;
+    width: 60%;
+    height: 60%;
+    object-fit: cover; /* ပုံကို Box ထဲ အပြည့်ဖြန့်ရန် */
+    opacity: 0.3;      /* Opacity 20% */
+    z-index: 10;       /* စာသားတွေရဲ့ အောက်မှာရှိနေစေရန် */
+    pointer-events: none;
+}
     </style>
 </head>
 <body class="antialiased">
@@ -273,6 +285,8 @@
 
             <div id="page-info" class="page-content h-full hidden relative">
                 <div class="info-glass p-6 space-y-6 overflow-y-auto h-full pb-20 relative z-20">
+                    <!-- နောက်ခံပုံ (YOUR_IMAGE_URL_HERE နေရာတွင် ပုံ Link ထည့်ပါ) -->
+<img src="https://i.postimg.cc/0QyLhsHC/IMG-2613.png" alt="Profile" class="info-bg-image" onerror="this.style.display='none'">
                     <div class="relative z-30">
                         <h3 class="text-blue-400 font-bold text-sm mb-4 flex items-center gap-2">
                             <i data-lucide="info" class="w-4 h-4"></i>
