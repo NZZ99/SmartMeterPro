@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Meter Search</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- PapaParse for CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <!-- Vue 3 for State Management -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #060B18;
+            color: #F8FAFC;
+            margin: 0;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        @keyframes rotate-zap {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .animate-zap {
+            animation: rotate-zap 2s linear infinite;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.01) !important;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+        }
+
+        .search-style-bg {
+            background: rgba(255, 255, 255, 0.01) !important;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+
+        .result-main-card, .info-glass {
+            background: rgba(255, 255, 255, 0.01) !important; 
+            backdrop-filter: blur(3px) !important; 
+            -webkit-backdrop-filter: blur(3px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .data-box-styled {
+            background: rgba(255, 255, 255, 0.005) !important; 
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 0.75rem;
+            backdrop-filter: none !important;
+        }
+
+        /* Red Glowing Box for Debt */
+        .data-box-red-glow {
+            background: rgba(239, 68, 68, 0.15) !important;
+            border: 1px solid rgba(239, 68, 68, 0.8) !important;
+            border-radius: 0.75rem;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Green Box for No Debt */
+        .data-box-green {
+            background: rgba(34, 197, 94, 0.1) !important;
+            border: 1px solid rgba(34, 197, 94, 0.3) !important;
+            border-radius: 1rem;
+        }
+
+        .monthly-card-styled {
+            background: rgba(255, 255, 255, 0.005) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(1px);
+            border-radius: 35px !important;
+        }
+
+        .royal-data-blur {
+            background: rgba(15, 23, 42, 0.85) !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            border-radius: 18px;
+        }
+
+        .glow-cyan {
+            color: #22d3ee !important;
+            text-shadow: 0 0 12px rgba(34, 211, 238, 0.6);
+        }
+        
+        .glow-electric {
+            color: #60a5fa !important;
+            text-shadow: 0 0 12px rgba(96, 165, 250, 0.6);
+        }
+
+        .glow-label {
+            color: #06b6d4 !important;
+            text-shadow: 0 0 8px rgba(6, 182, 212, 0.4);
+        }
+
+        .status-container-glass {
+            background: rgba(255, 255, 255, 0.01) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 9999px;
+        }
+
+        .status-success-thick {
+            border: 4px solid rgba(34, 197, 94, 0.8) !important; 
+            box-shadow: 0 0 25px rgba(34, 197, 94, 0.3);
+        }
+
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.01); 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            border-radius: 24px; 
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .text-glow-purple {
+            color: #c084fc;
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
+        .text-glow-blue {
+            color: #60a5fa;
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        .debt-data-text {
+            color: #ef4444 !important; 
+            font-weight: 800;
+            text-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="flex flex-col h-screen overflow-hidden relative">
+        <canvas id="starCanvas"></canvas>
+
+        <!-- Header -->
+        <header class="relative z-10 flex-none px-6 pt-12 pb-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl font-black tracking-tighter text-blue-500 uppercase">
+                            {{ activeTab === 'search' ? 'Search' : (activeTab === 'ကြေံးကျန်စစ်ရန်' ? 'Debt' : 'Info') }}
+                        </h1>
+                    </div>
+                    <p class="text-slate-500 text-[9px] font-bold tracking-[0.3em] uppercase">
+                        Smart Meter (Created by Pyae Gyi)
+                    </p>
+                </div>
+                <div class="flex items-center justify-center w-10 h-10 text-blue-500 glass-card">
+                    <span :key="'cloud-icon'"><i data-lucide="cloud-lightning" class="w-5 h-5 opacity-60"></i></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="relative flex-1 px-6 overflow-hidden">
+            <div v-show="activeTab === 'search' || activeTab === 'debt'" class="h-full flex flex-col">
+                <form @submit.prevent="handleSearch" class="relative z-10 mb-6 flex-none">
+                    <div class="relative overflow-hidden search-style-bg rounded-2xl transition-all duration-500">
+                        <div class="absolute left-0 top-0 bottom-0 w-12 flex items-center justify-center z-10">
+                            <div v-if="isInitializing">
+                                <span><i data-lucide="search" class="w-5 h-5 text-blue-500"></i></span>
+                            </div>
+                            <div v-else class="flex flex-col items-center justify-center scale-110">
+                                <span><i data-lucide="zap" class="w-5 h-5 text-green-400 fill-green-400"></i></span>
+                            </div>
+                        </div>
+
+                        <!-- Marquee based on Tab -->
+                        <div v-if="!searchStates[activeTab].query" class="absolute inset-y-0 left-12 right-[85px] overflow-hidden pointer-events-none flex items-center">
+                            <span v-if="activeTab === 'search'" class="whitespace-nowrap inline-block animate-[marquee_10s_linear_infinite] text-blue-400/60 text-sm">
+                                ကွန်ကုဒ်-လယ်ဂျာကုဒ်-မီတာနံပါတ် ဖြင့်ရှာပါ
+                            </span>
+                            <span v-else class="whitespace-nowrap inline-block animate-[marquee_10s_linear_infinite] text-blue-400/60 text-sm">
+                                ကွန်ပျူတာ ကုဒ် တစ်မျိုးထဲတာ ရိုက်ရှာ ပါ
+                            </span>
+                        </div>
+
+                        <input
+                            type="text"
+                            v-model="searchStates[activeTab].query"
+                            @input="validateInput"
+                            :disabled="isInitializing"
+                            :inputmode="activeTab === 'debt' ? 'numeric' : 'text'"
+                            class="relative z-0 w-full h-14 bg-transparent pl-12 pr-4 text-sm outline-none text-blue-100 placeholder-transparent"
+                        />
+                        <button
+                            type="submit"
+                            :disabled="isInitializing || !searchStates[activeTab].query"
+                            :class="['absolute right-2 top-2 bottom-2 px-5 rounded-xl text-xs font-bold active:scale-95 z-10 transition-all duration-300', 
+                                    isInitializing ? 'bg-slate-800/50 text-slate-600 cursor-not-allowed opacity-30' : 
+                                    !searchStates[activeTab].query ? 'bg-blue-600/10 text-blue-400/30 border border-blue-600/20' : 
+                                    'bg-blue-600/70 text-white shadow-[0_0_15px_rgba(37,99,235,0.3)] hover:bg-blue-500']"
+                        >
+                            Search
+                        </button>
+                    </div>
+                </form>
+
+                <div class="flex-1 overflow-y-auto pb-[120px] space-y-4 scrollbar-hide">
+                    <!-- Initial State -->
+                    <div v-if="!searchStates[activeTab].hasSearched" class="flex flex-col items-center justify-center py-16 text-center result-main-card">
+                        <div class="relative w-[60px] h-[60px] mx-auto flex items-center justify-center">
+                            <svg v-if="isInitializing" width="60" height="60" class="rotate-[-90deg] absolute">
+                                <circle
+                                    class="fill-none stroke-[2px] transition-all duration-75 ease-linear"
+                                    :style="{ strokeDasharray: 170, strokeDashoffset: 170 - (progress * 170) }"
+                                    stroke="#3b82f6"
+                                    cx="30" cy="30" r="27"
+                                    stroke-linecap="round"
+                                />
+                            </svg>
+                            
+                            <div :class="['w-[60px] h-[60px] flex items-center justify-center rounded-full relative transition-all duration-300 status-container-glass', 
+                                !isInitializing ? 'status-success-thick' : '']">
+                                <span v-if="isInitializing">
+                                    <i data-lucide="zap" class="w-6 h-6 text-blue-500 animate-zap"></i>
+                                </span>
+                                <span v-else>
+                                    <i data-lucide="zap" class="w-8 h-8 text-green-400 fill-green-400"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 h-12">
+                            <div v-if="!isInitializing">
+                                <p class="text-xl font-black text-green-400 uppercase tracking-widest animate-pulse">ရှာဖွေနိုင်ပါပြီ</p>
+                                <p class="text-[10px] text-slate-500 mt-1 uppercase tracking-[0.4em] font-bold">System Ready</p>
+                            </div>
+                            <div v-else>
+                                <p class="text-[12px] text-blue-400 font-black uppercase tracking-[0.2em]">Loading...</p>
+                                <p class="text-[10px] text-blue-400/60 font-bold uppercase tracking-[0.1em]">Data Synchronizing...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results Area -->
+                    <div v-else>
+                        <!-- Found Results -->
+                        <div v-if="searchStates[activeTab].results.length > 0">
+                            <div v-for="(res, idx) in searchStates[activeTab].results" :key="idx" class="p-5 mb-4 space-y-4 result-main-card border-white/10">
+                                <div class="p-4 data-box-styled">
+                                    <h4 class="text-lg font-black leading-tight text-blue-400">{{ res['Name'] || '-' }}</h4>
+                                    <p class="text-blue-300/70 text-[11px] mt-1 font-medium italic">{{ res['Address'] || '-' }}</p>
+                                </div>
+
+                                <!-- Debt Specific Layout -->
+                                <div v-if="activeTab === 'debt'" class="grid grid-cols-2 gap-2">
+                                    <div class="p-3 data-box-red-glow">
+                                        <p class="text-[7px] text-red-500 uppercase mb-1 font-black">ကြွေးကျန်လ</p>
+                                        <p class="text-[10px] truncate debt-data-text">{{ getColData(res, 1) }}</p>
+                                    </div>
+                                    <div class="p-3 data-box-red-glow">
+                                        <p class="text-[7px] text-red-500 uppercase mb-1 font-black">ကြွေးကျန်ငွေ</p>
+                                        <p class="text-[10px] truncate debt-data-text">{{ getColData(res, 2) }}</p>
+                                    </div>
+                                    <div class="p-3 data-box-styled">
+                                        <p class="text-[7px] text-blue-400/80 uppercase mb-1">Meter No</p>
+                                        <p class="text-[10px] font-bold truncate text-blue-100/90">{{ res['Meter-No'] || '-' }}</p>
+                                    </div>
+                                    <div class="p-3 data-box-styled">
+                                        <p class="text-[7px] text-blue-400/80 uppercase mb-1">Ledger</p>
+                                        <p class="text-[10px] font-bold truncate text-blue-100/90">{{ getColData(res, 4) }}</p>
+                                    </div>
+                                    <div class="p-3 data-box-styled">
+                                        <p class="text-[7px] text-blue-400/80 uppercase mb-1">Com Code</p>
+                                        <p class="text-[10px] font-bold truncate text-blue-100/90">{{ getColData(res, 0) }}</p>
+                                    </div>
+                                    <div class="p-3 data-box-styled flex items-center justify-center">
+                                        <p class="text-[9px] font-black text-red-500">ကြွေးကျန်ပါက မီးဖြတ်မည်</p>
+                                    </div>
+                                </div>
+
+                                <!-- Search Results Grid -->
+                                <div v-if="activeTab === 'search'" class="grid grid-cols-2 gap-2">
+                                    <div class="p-3 data-box-styled">
+                                        <p class="text-[7px] text-blue-400/80 uppercase mb-1">Com Code</p>
+                                        <p class="text-[10px] font-bold truncate text-blue-100/90">{{ res['com-code'] || '-' }}</p>
+                                    </div>
+                                    <div class="p-3 data-box-styled">
+                                        <p class="text-[7px] text-blue-400/80 uppercase mb-1">Ledger</p>
+                                        <p class="text-[10px] font-bold truncate text-blue-100/90">{{ res['Ledger-code'] || '-' }}</p>
+                                    </div>
+                                    <div class="p-3 data-box-styled">
+                                        <p class="text-[7px] text-blue-400/80 uppercase mb-1">Meter No</p>
+                                        <p class="text-[10px] font-bold truncate text-blue-100/90">{{ res['Meter-No'] || '-' }}</p>
+                                    </div>
+                                    <div class="p-3 data-box-styled">
+                                        <p class="text-[7px] text-blue-400/80 uppercase mb-1">Last Date</p>
+                                        <p class="text-[10px] font-bold truncate text-blue-100/80">{{ res['Last Date'] || '-' }}</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Search Monthly Summary -->
+                                <div v-if="activeTab === 'search'" class="pt-2 border-t border-white/10">
+                                    <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-3 text-center">တစ်နှစ်စာအကျဉ်းချုပ်</p>
+                                    <div class="mt-2 space-y-3">
+                                        <div v-for="(m, midx) in getMonthlyData(res)" :key="midx" class="monthly-card-styled border-[1px] border-white/10 p-5 flex flex-col items-center shadow-xl">
+                                            <p class="text-[11px] text-blue-400 uppercase font-black tracking-[0.2em] mb-5 bg-blue-500/10 px-4 py-1 rounded-full border border-blue-500/20">{{ m.label }}</p>
+                                            
+                                            <div class="flex justify-between w-full px-2 mb-2 text-center">
+                                                <p class="text-[8px] uppercase font-black w-1/3 tracking-tighter glow-label">မီတာဖတ်ချက်</p>
+                                                <p class="text-[8px] uppercase font-black w-1/3 tracking-tighter glow-label">သုံးစွဲယူနစ်</p>
+                                                <p class="text-[8px] uppercase font-black w-1/3 tracking-tighter glow-label">MMK</p>
+                                            </div>
+                                            
+                                            <div class="flex items-center justify-between w-full gap-2">
+                                                <div class="w-1/3 royal-data-blur py-3 text-center">
+                                                    <p class="text-[16px] font-black leading-none glow-cyan">{{ m.reading }}</p>
+                                                </div>
+                                                <div class="w-1/3 royal-data-blur py-3 text-center">
+                                                    <p class="text-[16px] font-black leading-none glow-cyan">{{ m.usage }}</p>
+                                                </div>
+                                                <div class="w-1/3 royal-data-blur py-3 text-center">
+                                                    <p class="text-[16px] font-black leading-none glow-electric">{{ m.amount }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- No Debt Green Box -->
+                        <div v-else-if="searchStates[activeTab].query.length > 0" class="flex flex-col items-center justify-center py-16 text-center data-box-green">
+                            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-green-500/20 mb-4">
+                                <i data-lucide="check-circle" class="w-6 h-6 text-green-400"></i>
+                            </div>
+                            <p class="text-xl font-black text-green-400 tracking-widest">ကြွေးကျန်မရှိပါ</p>
+                        </div>
+
+                        <!-- Empty Case -->
+                        <div v-else class="py-20 text-center result-main-card border-white/10">
+                            <span><i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2 text-slate-600"></i></span>
+                            <p class="text-[10px] text-slate-500">ရှာမတွေ့ပါ</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Tab -->
+            <div v-show="activeTab === 'info'" class="relative h-full flex flex-col">
+                <div class="relative z-20 flex-1 p-6 space-y-6 overflow-y-auto info-glass scrollbar-hide border-white/10">
+                    <div class="relative z-30">
+                        <h3 class="flex items-center gap-2 mb-4 text-sm font-bold text-blue-400">
+                            <i data-lucide="info" class="w-4 h-4"></i>
+                            အသုံးပြုနည်း
+                        </h3>
+                        <ul class="text-[11px] text-slate-200 space-y-3 leading-relaxed list-disc pl-4">
+                            <li>ကွန်ကုဒ်၊လယ်ဂျာကုဒ်၊မီတာနံပါတ်ဖြင့် ရှာဖွေနိင်ပါသည်။</li>
+                            <li>မိမိကြည့်လိုသော အချက်အလက်ကို အချိန်နှင့်တပြေးညီ ကြည့်ရှုနိုင်ပါသည်။</li>
+                            <li>(၁၂) လစာ သုံးစွဲခဲ့သော ယူနစ်များ နှင့် ငွေ အား ကြည့်ရှုနိုင်ပါသည်။</li>
+                            <li>ကြွေးကျန်လ များကို လဲ အချိန်နှင့် တပြေးညီ ကြည့်ရှု နီုင်ပါသည်။</li>
+                            <li>App အဖငြ့် အသုံးပြုရန် Browser-Share Button-Add to home screen</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 opacity-[0.1] pointer-events-none z-5 flex flex-col justify-center items-center gap-2">
+                        <img src="https://i.postimg.cc/zvN5vT4k/IMG-2615.png" alt="Logo" class="w-full h-auto object-contain">
+                    </div>
+
+                    <div class="mt-auto pt-8 pb-4 text-center space-y-2 relative z-30">
+                        <div class="h-[1px] w-12 bg-blue-500/30 mx-auto mb-4"></div>
+                        <p class="text-[10px] font-extrabold tracking-[0.2em] uppercase text-glow-blue">Created by Pyae Gyi</p>
+                        <p class="text-[9px] font-bold tracking-[0.1em] uppercase text-glow-purple">Supported by Nway & Taw Tar</p>
+                    </div>
+                </div>
+                <div class="h-28 flex-none"></div>
+            </div>
+        </main>
+
+        <!-- Navigation -->
+        <nav class="fixed bottom-6 left-6 right-6 h-18 liquid-glass flex items-center justify-around px-2 z-50 py-2">
+            <button @click="activeTab = 'search'" :class="['flex flex-col items-center gap-1 p-2 rounded-xl transition-all', activeTab === 'search' ? 'bg-blue-600/20 text-blue-400 border border-blue-500/20' : 'text-slate-500']">
+                <i data-lucide="search" class="w-5 h-5"></i>
+                <span class="text-[8px] font-bold">Search</span>
+            </button>
+            <button @click="activeTab = 'debt'" :class="['flex flex-col items-center gap-1 p-2 rounded-xl transition-all', activeTab === 'debt' ? 'bg-blue-600/20 text-blue-400 border border-blue-500/20' : 'text-slate-500']">
+                <i data-lucide="wallet" class="w-5 h-5"></i>
+                <span class="text-[8px] font-bold">Debt</span>
+            </button>
+            <button @click="activeTab = 'info'" :class="['flex flex-col items-center gap-1 p-2 rounded-xl transition-all', activeTab === 'info' ? 'bg-blue-600/20 text-blue-400 border border-blue-500/20' : 'text-slate-500']">
+                <i data-lucide="info" class="w-5 h-5"></i>
+                <span class="text-[8px] font-bold">Info</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        const { createApp, ref, reactive, onMounted, watch, nextTick } = Vue;
+
+        createApp({
+            setup() {
+                const activeTab = ref('search');
+                
+                // Page တစ်ခုစီအတွက် Search State ကို Object နဲ့ သိမ်းထားမယ်
+                const searchStates = reactive({
+                    search: { query: '', results: [], hasSearched: false },
+                    debt: { query: '', results: [], hasSearched: false },
+                    info: { query: '', results: [], hasSearched: false }
+                });
+
+                const searchDatabase = ref([]);
+                const debtDatabase = ref([]);
+                const headers = ref({ search: [], debt: [] });
+                const isInitializing = ref(true);
+                const isDataLoaded = ref({ search: false, debt: false });
+                const progress = ref(0);
+
+                const SEARCH_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTfI2SdtyNjwossByzTn38sppmSkcHatoFpW7fAKeWrAwcpMRdnHQ2Np6VJonXsrtkChq3hW6Fh2gLW/pub?gid=0&single=true&output=csv";
+                const DEBT_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZxjZi2br-q9T8AOAL0gKBDWISneVAEOuOTOEl1RBPw8TazdWVR9IA-U3RS6WKEglS8MMhtCY-6zBw/pub?gid=0&single=true&output=csv";
+
+                const loadCSV = async (url, type) => {
+                    try {
+                        const response = await fetch(url);
+                        const csvText = await response.text();
+                        Papa.parse(csvText, {
+                            header: false,
+                            skipEmptyLines: true,
+                            complete: (results) => {
+                                const rows = results.data;
+                                if (rows.length < 1) { isDataLoaded.value[type] = true; return; }
+                                const hd = rows[0];
+                                const db = rows.slice(1).map(row => {
+                                    const obj = {};
+                                    hd.forEach((h, i) => { obj[h] = row[i] || ''; });
+                                    obj._colA = (row[0] || '').toLowerCase(); 
+                                    obj._fullSearch = row.join(' ').toLowerCase();
+                                    obj._row = row;
+                                    return obj;
+                                });
+                                if (type === 'search') searchDatabase.value = db;
+                                else debtDatabase.value = db;
+                                headers.value[type] = hd;
+                                isDataLoaded.value[type] = true;
+                            }
+                        });
+                    } catch (error) { isDataLoaded.value[type] = true; }
+                };
+
+                const validateInput = () => {
+                    if (activeTab.value === 'debt') {
+                        let val = searchStates.debt.query.replace(/\D/g, '');
+                        if (val.length > 6) val = val.substring(0, 6);
+                        searchStates.debt.query = val;
+                    }
+                };
+
+                const startLoadingTimer = () => {
+                    const duration = 3000;
+                    const startTime = Date.now();
+                    const update = () => {
+                        const elapsed = Date.now() - startTime;
+                        progress.value = Math.min(elapsed / duration, 1);
+                        if (progress.value < 1) requestAnimationFrame(update);
+                        else {
+                            const checkData = setInterval(() => {
+                                if (isDataLoaded.value.search && isDataLoaded.value.debt) {
+                                    isInitializing.value = false;
+                                    clearInterval(checkData);
+                                    nextTick(() => lucide.createIcons());
+                                }
+                            }, 50);
+                        }
+                    };
+                    requestAnimationFrame(update);
+                };
+
+                const handleSearch = () => {
+                    if (isInitializing.value) return;
+                    const state = searchStates[activeTab.value];
+                    const query = state.query.trim().toLowerCase();
+                    if (!query) { state.hasSearched = false; return; }
+                    state.hasSearched = true;
+                    
+                    if (activeTab.value === 'search') {
+                        state.results = searchDatabase.value.filter(item => item._fullSearch.includes(query)).slice(0, 50);
+                    } else if (activeTab.value === 'debt') {
+                        state.results = debtDatabase.value.filter(item => item._colA === query).slice(0, 50);
+                    }
+                    nextTick(() => lucide.createIcons());
+                };
+
+                const getColData = (data, index) => {
+                    return data._row && data._row[index] ? data._row[index] : '-';
+                };
+
+                const getMonthlyData = (data) => {
+                    const months = [];
+                    const rowArray = data._row;
+                    const activeHeaders = headers.value['search'];
+                    if (!activeHeaders.length) return [];
+                    for (let i = 0; i < 13; i++) {
+                        const base = 6 + (i * 3);
+                        if (activeHeaders[base]) {
+                            months.push({
+                                label: formatHeader(activeHeaders[base]),
+                                reading: rowArray[base] || '0',
+                                usage: rowArray[base + 1] || '0',
+                                amount: rowArray[base + 2] || '0'
+                            });
+                        }
+                    }
+                    return months;
+                };
+
+                const formatHeader = (h) => {
+                    if (!h) return '';
+                    const match = h.match(/^(\d+)\/(\d+)$/);
+                    if (match) {
+                        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                        return `${monthNames[parseInt(match[1]) - 1]}-${match[2]}`;
+                    }
+                    return h;
+                };
+
+                onMounted(() => {
+                    loadCSV(SEARCH_URL, 'search');
+                    loadCSV(DEBT_URL, 'debt');
+                    startLoadingTimer();
+                    initStars();
+                    lucide.createIcons();
+                });
+
+                watch(activeTab, () => {
+                    // Page ပြောင်းတဲ့အခါ icon ပြန်ဆွဲရုံပဲလုပ်မယ် Query တွေ မဖျက်တော့ဘူး
+                    nextTick(() => lucide.createIcons());
+                });
+
+                return { 
+                    activeTab, searchStates, isInitializing, progress, 
+                    handleSearch, getMonthlyData,
+                    validateInput, getColData
+                };
+            }
+        }).mount('#app');
+
+        function initStars() {
+            const canvas = document.getElementById('starCanvas');
+            const ctx = canvas.getContext('2d');
+            let stars = [];
+            function setup() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                stars = [];
+                for (let i = 0; i < 400; i++) {
+                    stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2, speed: Math.random() * 0.5 + 0.2 });
+                }
+            }
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = 'rgba(147, 197, 253, 0.4)'; 
+                for (let s of stars) {
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.size/2, 0, Math.PI * 2);
+                    ctx.fill();
+                    s.x -= s.speed;
+                    if (s.x < 0) s.x = canvas.width;
+                }
+                requestAnimationFrame(animate);
+            }
+            setup(); animate();
+            window.addEventListener('resize', setup);
+        }
+    </script>
+</body>
+</html>
