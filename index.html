@@ -73,7 +73,6 @@
             backdrop-filter: none !important;
         }
 
-        /* Red Glowing Box for Debt */
         .data-box-red-glow {
             background: rgba(239, 68, 68, 0.15) !important;
             border: 1px solid rgba(239, 68, 68, 0.8) !important;
@@ -81,7 +80,6 @@
             box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
         }
 
-        /* Green Box for No Debt */
         .data-box-green {
             background: rgba(34, 197, 94, 0.1) !important;
             border: 1px solid rgba(34, 197, 94, 0.3) !important;
@@ -198,7 +196,6 @@
                             </div>
                         </div>
 
-                        <!-- Marquee based on Tab -->
                         <div v-if="!searchStates[activeTab].query" class="absolute inset-y-0 left-12 right-[85px] overflow-hidden pointer-events-none flex items-center">
                             <span v-if="activeTab === 'search'" class="whitespace-nowrap inline-block animate-[marquee_10s_linear_infinite] text-blue-400/60 text-sm">
                                 ကွန်ကုဒ်-လယ်ဂျာကုဒ်-မီတာနံပါတ် ဖြင့်ရှာပါ
@@ -230,7 +227,6 @@
                 </form>
 
                 <div class="flex-1 overflow-y-auto pb-[120px] space-y-4 scrollbar-hide">
-                    <!-- Initial State -->
                     <div v-if="!searchStates[activeTab].hasSearched" class="flex flex-col items-center justify-center py-16 text-center result-main-card">
                         <div class="relative w-[60px] h-[60px] mx-auto flex items-center justify-center">
                             <svg v-if="isInitializing" width="60" height="60" class="rotate-[-90deg] absolute">
@@ -266,9 +262,7 @@
                         </div>
                     </div>
 
-                    <!-- Results Area -->
                     <div v-else>
-                        <!-- Found Results -->
                         <div v-if="searchStates[activeTab].results.length > 0">
                             <div v-for="(res, idx) in searchStates[activeTab].results" :key="idx" class="p-5 mb-4 space-y-4 result-main-card border-white/10">
                                 <div class="p-4 data-box-styled">
@@ -276,7 +270,6 @@
                                     <p class="text-blue-300/70 text-[11px] mt-1 font-medium italic">{{ res['Address'] || '-' }}</p>
                                 </div>
 
-                                <!-- Debt Specific Layout -->
                                 <div v-if="activeTab === 'debt'" class="grid grid-cols-2 gap-2">
                                     <div class="p-3 data-box-red-glow">
                                         <p class="text-[7px] text-red-500 uppercase mb-1 font-black">ကြွေးကျန်လ</p>
@@ -303,7 +296,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Search Results Grid -->
                                 <div v-if="activeTab === 'search'" class="grid grid-cols-2 gap-2">
                                     <div class="p-3 data-box-styled">
                                         <p class="text-[7px] text-blue-400/80 uppercase mb-1">Com Code</p>
@@ -323,7 +315,6 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Search Monthly Summary -->
                                 <div v-if="activeTab === 'search'" class="pt-2 border-t border-white/10">
                                     <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-3 text-center">တစ်နှစ်စာအကျဉ်းချုပ်</p>
                                     <div class="mt-2 space-y-3">
@@ -353,15 +344,24 @@
                             </div>
                         </div>
 
-                        <!-- No Debt Green Box -->
-                        <div v-else-if="searchStates[activeTab].query.length > 0" class="flex flex-col items-center justify-center py-16 text-center data-box-green">
-                            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-green-500/20 mb-4">
-                                <i data-lucide="check-circle" class="w-6 h-6 text-green-400"></i>
+                        <!-- Different Empty States for Each Page -->
+                        <div v-else-if="searchStates[activeTab].query.length > 0">
+                            <!-- Debt Page Empty State -->
+                            <div v-if="activeTab === 'debt'" class="flex flex-col items-center justify-center py-16 text-center data-box-green">
+                                <div class="w-12 h-12 flex items-center justify-center rounded-full bg-green-500/20 mb-4">
+                                    <i data-lucide="check-circle" class="w-6 h-6 text-green-400"></i>
+                                </div>
+                                <p class="text-xl font-black text-green-400 tracking-widest">ကြွေးကျန်မရှိပါ</p>
                             </div>
-                            <p class="text-xl font-black text-green-400 tracking-widest">ကြွေးကျန်မရှိပါ</p>
+                            <!-- Search Page Empty State -->
+                            <div v-else class="flex flex-col items-center justify-center py-16 text-center result-main-card border-red-500/20">
+                                <div class="w-12 h-12 flex items-center justify-center rounded-full bg-red-500/20 mb-4">
+                                    <i data-lucide="alert-circle" class="w-6 h-6 text-red-400"></i>
+                                </div>
+                                <p class="text-xl font-black text-red-400 tracking-widest">နံပါတ်မှားနေပါသည်</p>
+                            </div>
                         </div>
 
-                        <!-- Empty Case -->
                         <div v-else class="py-20 text-center result-main-card border-white/10">
                             <span><i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2 text-slate-600"></i></span>
                             <p class="text-[10px] text-slate-500">ရှာမတွေ့ပါ</p>
@@ -391,7 +391,7 @@
                         <img src="https://i.postimg.cc/zvN5vT4k/IMG-2615.png" alt="Logo" class="w-full h-auto object-contain">
                     </div>
 
-                    <div class="mt-auto pt-8 pb-4 text-center space-y-2 relative z-30">
+                    <div class="mt-auto pt-8 pb-10 text-center space-y-2 relative z-30">
                         <div class="h-[1px] w-12 bg-blue-500/30 mx-auto mb-4"></div>
                         <p class="text-[10px] font-extrabold tracking-[0.2em] uppercase text-glow-blue">Created by Pyae Gyi</p>
                         <p class="text-[9px] font-bold tracking-[0.1em] uppercase text-glow-purple">Supported by Nway & Taw Tar</p>
@@ -409,7 +409,7 @@
             </button>
             <button @click="activeTab = 'debt'" :class="['flex flex-col items-center gap-1 p-2 rounded-xl transition-all', activeTab === 'debt' ? 'bg-blue-600/20 text-blue-400 border border-blue-500/20' : 'text-slate-500']">
                 <i data-lucide="wallet" class="w-5 h-5"></i>
-                <span class="text-[8px] font-bold">Debt</span>
+                <span class="text-[8px] font-bold">ကြွေးကျန်စစ်ရန်</span>
             </button>
             <button @click="activeTab = 'info'" :class="['flex flex-col items-center gap-1 p-2 rounded-xl transition-all', activeTab === 'info' ? 'bg-blue-600/20 text-blue-400 border border-blue-500/20' : 'text-slate-500']">
                 <i data-lucide="info" class="w-5 h-5"></i>
@@ -425,7 +425,6 @@
             setup() {
                 const activeTab = ref('search');
                 
-                // Page တစ်ခုစီအတွက် Search State ကို Object နဲ့ သိမ်းထားမယ်
                 const searchStates = reactive({
                     search: { query: '', results: [], hasSearched: false },
                     debt: { query: '', results: [], hasSearched: false },
@@ -555,7 +554,6 @@
                 });
 
                 watch(activeTab, () => {
-                    // Page ပြောင်းတဲ့အခါ icon ပြန်ဆွဲရုံပဲလုပ်မယ် Query တွေ မဖျက်တော့ဘူး
                     nextTick(() => lucide.createIcons());
                 });
 
