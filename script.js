@@ -5,7 +5,8 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzyfYIlPb7vxHegkX6Z_
 function logSearchToSheet(keyword) {
     if (!keyword || keyword.trim() === "") return;
 
-    console.log("Attempting to log keyword:", keyword);
+    // Browser Console မှာ စစ်ဆေးရန် (F12 နှိပ်ပြီးကြည့်နိုင်သည်)
+    console.log("Sending to Sheet:", keyword);
 
     fetch(SCRIPT_URL, {
         method: 'POST',
@@ -17,7 +18,7 @@ function logSearchToSheet(keyword) {
         body: JSON.stringify({ keyword: keyword })
     })
     .then(() => {
-        console.log("Success: Sent to Google Sheets");
+        console.log("Logged successfully!");
     })
     .catch(err => {
         console.error("Fetch Error:", err);
@@ -26,38 +27,50 @@ function logSearchToSheet(keyword) {
 
 /**
  * Search လုပ်သည့်အခါ ခေါ်ယူမည့် function
- * index.html ရှိ <form @submit.prevent="performSearch()"> သို့မဟုတ် 
- * <button onclick="performSearch()"> တွင် ချိတ်ဆက်ထားရမည်။
  */
 function performSearch() {
-    // Input element ကို ID ဖြင့် ရှာသည်
-    const searchInput = document.getElementById('searchInput');
-    
-    // အကယ်၍ ID ဖြင့် ရှာမတွေ့ပါက Vue.js ရဲ့ model ထဲက data ကို ယူရန် ကြိုးစားကြည့်မည်
+    // နည်းလမ်း (၁) - ID ဖြင့်ရှာခြင်း
+    let searchInput = document.getElementById('searchInput');
     let query = "";
-    
+
     if (searchInput) {
         query = searchInput.value;
-    } else {
-        // ID မပါလျှင် သို့မဟုတ် Vue သုံးထားလျှင် Selector ဖြင့် ထပ်ရှာသည်
-        const vueInput = document.querySelector('input[type="text"]');
-        if (vueInput) query = vueInput.value;
+    } 
+    
+    // နည်းလမ်း (၂) - အကယ်၍ ID မရှိလျှင် input box ကို တိုက်ရိုက်ရှာခြင်း
+    if (!query) {
+        const allInputs = document.querySelectorAll('input[type="text"]');
+        // website မှာ input box တွေအများကြီးရှိနိုင်လို့ အနီးစပ်ဆုံး placeholder နဲ့ရှာကြည့်မယ်
+        allInputs.forEach(input => {
+            if (input.placeholder.includes('ရှာ') || input.className.includes('search')) {
+                query = input.value;
+            }
+        });
+        
+        // အပေါ်ကမှ မရရင် ပထမဆုံးတွေ့တဲ့ input ထဲက စာကိုယူမယ်
+        if (!query && allInputs.length > 0) {
+            query = allInputs[0].value;
+        }
     }
 
     if (query) {
         logSearchToSheet(query);
-        console.log("Searching for: " + query);
-        
-        // --- သင်၏ မူလ Search Filtering Logic များ ဤနေရာတွင် ရှိနိုင်သည် ---
+        console.log("Performing search for:", query);
     }
 }
 
-// Enter Key နှိပ်ခြင်းကို စစ်ဆေးရန်
-document.addEventListener('keypress', function (e) {
+// ၃။ Website ပေါ်က ဘယ်နေရာမှာပဲဖြစ်ဖြစ် Enter ခေါက်ရင် အလုပ်လုပ်အောင်လုပ်ခြင်း
+document.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') {
-        const activeElement = document.activeElement;
-        if (activeElement && activeElement.tagName === 'INPUT') {
-            performSearch();
-        }
+        // ခဏစောင့်ပြီးမှ ယူခြင်း (Vue data update ဖြစ်ချိန်ပေးရန်)
+        setTimeout(performSearch, 100);
+    }
+});
+
+// ၄။ Search Button ကို နှိပ်ရင်လည်း အလုပ်လုပ်အောင် Event Listener ထည့်ခြင်း
+document.addEventListener('click', function(e) {
+    // Button စာသားက 'Search' ဖြစ်ရင် ဒါမှမဟုတ် search icon ဖြစ်ရင်
+    if (e.target.innerText && e.target.innerText.toLowerCase().includes('search')) {
+        setTimeout(performSearch, 100);
     }
 });
