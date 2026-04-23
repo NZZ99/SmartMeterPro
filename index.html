@@ -217,7 +217,7 @@
                         </div>
 
                         <input
-                            type="text" id="searchQuery"
+                            type="text"
                             v-model="searchStates[activeTab].query"
                             @input="validateInput"
                             :disabled="isInitializing"
@@ -605,19 +605,6 @@
             setup(); animate();
             window.addEventListener('resize', setup);
         }
-        // ၁။ Google Sheet ဆီ ဒေတာပို့ပေးမယ့် function
-function sendSearchHistory(query) {
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbxO15Ttk0o7VEtLZxVru5E0VBtQBrgJhp9YBDskrI9LqPZYepGHHEsbU-74FedQzA_m8w/exec'; // Google Script ကရတဲ့ URL ထည့်ရန်
-  
-  fetch(scriptURL, {
-    method: 'POST',
-    mode: 'no-cors', // ဒါက error မတက်အောင် ကူညီပေးပါတယ်
-    cache: 'no-cache',
-    body: JSON.stringify({ searchQuery: query })
-  })
-  .then(() => console.log("Recorded: " + query))
-  .catch(error => console.error('Error!', error.message));
-}
     </script>
 </body>
 </html>
