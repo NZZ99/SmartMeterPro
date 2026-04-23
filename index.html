@@ -196,7 +196,7 @@
         <!-- Main Content -->
         <main class="relative flex-1 px-6 overflow-hidden">
             <div v-show="activeTab === 'search' || activeTab === 'debt'" class="h-full flex flex-col">
-                <form @submit.prevent="handleSearch" class="relative z-10 mb-6 flex-none">
+                <form @submit.prevent="performSearch()" class="relative z-10 mb-6 flex-none">
                     <div class="relative overflow-hidden search-style-bg rounded-2xl transition-all duration-500">
                         <div class="absolute left-0 top-0 bottom-0 w-12 flex items-center justify-center z-10">
                             <div v-if="isInitializing">
@@ -217,6 +217,7 @@
                         </div>
 
                         <input
+                            id="searchInput"
                             type="text"
                             v-model="searchStates[activeTab].query"
                             @input="validateInput"
