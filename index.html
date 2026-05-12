@@ -89,33 +89,37 @@
 
     <script>
         // ==========================================
-        // ဒီနေရာမှာ အချိန်ကို စိတ်ကြိုက် ပြင်ဆင်ပါ
-        const setHours = 2;   // နာရီ
-        const setMinutes = 0; // မိနစ်
-        const setSeconds = 0; // စက္ကန့်
+        // ပြီးဆုံးမည့်အချိန်ကို ဒီမှာ သတ်မှတ်ပါ (ပုံစံ: "YYYY-MM-DD HH:MM:SS")
+        // ဥပမာ: "2026-05-12 18:00:00"
+        const targetDateString = "2026-05-12 12:00:00";
         // ==========================================
 
-        let timeRemaining = (setHours * 3600) + (setMinutes * 60) + setSeconds;
+        const targetDate = new Date(targetDateString).getTime();
         
         const hourDisplay = document.getElementById('hours');
         const minDisplay = document.getElementById('minutes');
         const secDisplay = document.getElementById('seconds');
 
         function updateTimer() {
-            const hrs = Math.floor(timeRemaining / 3600);
-            const mins = Math.floor((timeRemaining % 3600) / 60);
-            const secs = timeRemaining % 60;
+            const now = new Date().getTime();
+            const timeDifference = targetDate - now;
+
+            if (timeDifference <= 0) {
+                clearInterval(timerInterval);
+                hourDisplay.textContent = "00";
+                minDisplay.textContent = "00";
+                secDisplay.textContent = "00";
+                document.querySelectorAll('.timer-font').forEach(el => el.classList.add('text-red-600'));
+                return;
+            }
+
+            const hrs = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((timeDifference % (1000 * 60)) / 1000);
 
             hourDisplay.textContent = hrs.toString().padStart(2, '0');
             minDisplay.textContent = mins.toString().padStart(2, '0');
             secDisplay.textContent = secs.toString().padStart(2, '0');
-
-            if (timeRemaining <= 0) {
-                clearInterval(timerInterval);
-                document.querySelectorAll('.timer-font').forEach(el => el.classList.add('text-red-600'));
-            } else {
-                timeRemaining--;
-            }
         }
 
         const timerInterval = setInterval(updateTimer, 1000);
