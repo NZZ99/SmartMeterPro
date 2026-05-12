@@ -6,14 +6,21 @@
     <title>သတိပေးချက် - ပြုပြင်နေဆဲ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;700&family=JetBrains+Mono:wght@700&display=swap');
+        
         body {
             font-family: 'Pyidaungsu', sans-serif;
             background-color: #fef2f2;
         }
+        
         .error-shake {
             animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
         }
+
+        .timer-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
         @keyframes shake {
             10%, 90% { transform: translate3d(-1px, 0, 0); }
             20%, 80% { transform: translate3d(2px, 0, 0); }
@@ -45,17 +52,75 @@
             </p>
         </div>
 
+        <!-- Countdown Timer Section -->
+        <div class="mb-8 p-4 bg-gray-50 rounded-xl border border-gray-100">
+            <p class="text-xs text-gray-400 uppercase tracking-widest mb-3">ပြန်လည်ဖွင့်လှစ်ရန် ကျန်ရှိချိန်</p>
+            <div class="flex justify-center items-center gap-2">
+                <!-- Hours -->
+                <div class="flex flex-col">
+                    <span id="hours" class="timer-font text-3xl font-bold text-gray-800 bg-white shadow-sm px-2 py-1 rounded-lg border min-w-[50px]">00</span>
+                    <span class="text-[9px] text-gray-400 mt-1 uppercase">Hrs</span>
+                </div>
+                <span class="text-xl font-bold text-gray-300 mb-5">:</span>
+                <!-- Minutes -->
+                <div class="flex flex-col">
+                    <span id="minutes" class="timer-font text-3xl font-bold text-gray-800 bg-white shadow-sm px-2 py-1 rounded-lg border min-w-[50px]">00</span>
+                    <span class="text-[9px] text-gray-400 mt-1 uppercase">Mins</span>
+                </div>
+                <span class="text-xl font-bold text-gray-300 mb-5">:</span>
+                <!-- Seconds -->
+                <div class="flex flex-col">
+                    <span id="seconds" class="timer-font text-3xl font-bold text-gray-800 bg-white shadow-sm px-2 py-1 rounded-lg border min-w-[50px]">00</span>
+                    <span class="text-[9px] text-gray-400 mt-1 uppercase">Secs</span>
+                </div>
+            </div>
+        </div>
+
         <p class="text-gray-600 text-sm leading-relaxed mb-8">
-            စနစ်ကို အဆင့်မြှင့်တင်နေသောကြောင့် လက်ရှိတွင် အသုံးပြု၍မရနိင်သေးပါ။
+            စနစ်ကို အဆင့်မြှင့်တင်နေသောကြောင့် လက်ရှိတွင် အသုံးပြု၍မရနိုင်သေးပါ။ ခေတ္တစောင့်ဆိုင်းပေးပါရန် မေတ္တာရပ်ခံအပ်ပါသည်။
         </p>
 
-        <!-- Loading Spinner (Static version for error feel) -->
+        <!-- Loading Spinner -->
         <div class="flex items-center justify-center space-x-2 text-gray-400">
             <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse"></div>
             <span class="text-xs font-semibold uppercase tracking-widest">Maintenance In Progress</span>
         </div>
     </div>
 
+    <script>
+        // ==========================================
+        // ဒီနေရာမှာ အချိန်ကို စိတ်ကြိုက် ပြင်ဆင်ပါ
+        const setHours = 2;   // နာရီ
+        const setMinutes = 0; // မိနစ်
+        const setSeconds = 0; // စက္ကန့်
+        // ==========================================
+
+        let timeRemaining = (setHours * 3600) + (setMinutes * 60) + setSeconds;
+        
+        const hourDisplay = document.getElementById('hours');
+        const minDisplay = document.getElementById('minutes');
+        const secDisplay = document.getElementById('seconds');
+
+        function updateTimer() {
+            const hrs = Math.floor(timeRemaining / 3600);
+            const mins = Math.floor((timeRemaining % 3600) / 60);
+            const secs = timeRemaining % 60;
+
+            hourDisplay.textContent = hrs.toString().padStart(2, '0');
+            minDisplay.textContent = mins.toString().padStart(2, '0');
+            secDisplay.textContent = secs.toString().padStart(2, '0');
+
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                document.querySelectorAll('.timer-font').forEach(el => el.classList.add('text-red-600'));
+            } else {
+                timeRemaining--;
+            }
+        }
+
+        const timerInterval = setInterval(updateTimer, 1000);
+        updateTimer();
+    </script>
+
 </body>
 </html>
-
