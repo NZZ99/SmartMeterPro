@@ -407,13 +407,19 @@
 
             document.getElementById('resTotalUnits').innerText = totalUnits.toLocaleString() + " ယူနစ်";
             document.getElementById('resPowerCost').innerText = powerCost.toLocaleString() + " ကျပ်";
-            document.getElementById('resServiceFee').innerText = activeServiceFee.toLocaleString() + " ကျပ်";
+            // နေရာ (၂) ပြင်ဆင်ချက် : ပြေစာ (Receipt) ပေါ်တွင် "၂,၀၀၀ ကျပ် (၅,၀၀၀-CT)" ဟုပြသရန် (တွက်ချက်မှုပေါင်းခြင်းတွင်မူ ၂,၀၀၀ ကိုသာ ဆက်လက်သုံးစွဲပါမည်)
+            let displayServiceFee = activeServiceFee.toLocaleString() + " ကျပ်";
+            if (currentType === 'business') {
+                displayServiceFee = "2,000 ကျပ် (5,000-CT)"; 
+            }
+            document.getElementById('resServiceFee').innerText = displayServiceFee;
+            
+            // Grand Total (ပေါင်းတာကတော့ ၂,၀၀၀ နဲ့ပဲ ပေါင်းထားပါတယ်)
             document.getElementById('resTotalCost').innerText = (powerCost + activeServiceFee).toLocaleString() + " ကျပ်";
 
             // Generation of detailed tier lists inside receipt
             const tierContainer = document.getElementById('tierBreakdown');
-            tierContainer.innerHTML = '';
-            
+            tierContainer.innerHTML = '';       
             tierCalculations.forEach(calc => {
                 const item = document.createElement('div');
                 item.className = "flex justify-between items-center text-slate-300 py-1 border-b border-slate-800/40 last:border-0";
