@@ -678,84 +678,64 @@
             setup(); animate();
             window.addEventListener('resize', setup);
         }
-        // Assistive Touch Drag Logic
-const dragItem = document.getElementById("floatingCalcBtn");
+        const dragItem = document.getElementById("floatingCalcBtn");
+const btnLink = dragItem.querySelector('.touch-btn-link');
+
 let isDragging = false;
-let currentX;
-let currentY;
-let initialX;
-let initialY;
-let xOffset = 0;
-let yOffset = 0;
+let startX, startY;
+let translateX = 0, translateY = 0;
+let moveDistance = 0;
 
-// Mouse သို့မဟုတ် Touch စတင်ထိတွေ့ချိန်
-dragItem.addEventListener("touchstart", dragStart, { passive: false });
-dragItem.addEventListener("touchend", dragEnd, { passive: false });
-dragItem.addEventListener("touchmove", drag, { passive: false });
-
+// Mouse Events (ကွန်ပျူတာအတွက်)
 dragItem.addEventListener("mousedown", dragStart);
-dragItem.addEventListener("mouseup", dragEnd);
-dragItem.addEventListener("mousemove", drag);
+document.addEventListener("mousemove", dragMove);
+document.addEventListener("mouseup", dragEnd);
+
+// Touch Events (ဖုန်းအတွက်)
+dragItem.addEventListener("touchstart", dragStart, { passive: false });
+document.addEventListener("touchmove", dragMove, { passive: false });
+document.addEventListener("touchend", dragEnd, { passive: false });
 
 function dragStart(e) {
-    // ခလုတ်ထဲက link နှိပ်တာနဲ့ drag ဆွဲတာ မရောထွေးစေရန် အနည်းငယ်ရွေ့မှ drag ဟု သတ်မှတ်မည်
-    if (e.type === "touchstart") {
-        initialX = e.touches[0].clientX - xOffset;
-        initialY = e.touches[0].clientY - yOffset;
-    } else {
-        initialX = e.clientX - xOffset;
-        initialY = e.clientY - yOffset;
-    }
-    
-    // Target က ခလုတ်ဖြစ်မှ အလုပ်လုပ်မည်
-    if (e.target === dragItem || dragItem.contains(e.target)) {
-        isDragging = true;
-    }
+    // Click နှိပ်တာလား၊ ဖိဆွဲတာလား ခွဲခြားရန် distance ကို သုညပြန်လုပ်ခြင်း
+    moveDistance = 0;
+    isDragging = true;
+
+    // Client X နဲ့ Y ကို ရယူခြင်း
+    const clientX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
+
+    // စတင်ဖိလိုက်တဲ့နေရာကို မှတ်သားခြင်း
+    startX = clientX - translateX;
+    startY = clientY - translateY;
+}
+
+function dragMove(e) {
+    if (!isDragging) return;
+
+    // ဖုန်းမှာဆိုရင် screen ပါလိုက်ရွေ့မသွားအောင် တားဆီးခြင်း
+    if (e.type === "touchmove") e.preventDefault();
+
+    const clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
+
+    // ရွေ့လျားသွားတဲ့ အကွာအဝေးအသစ်ကို တွက်ချက်ခြင်း
+    translateX = clientX - startX;
+    translateY = clientY - startY;
+    moveDistance++;
+
+    // CSS transform သုံးပြီး နေရာရွှေ့ပေးခြင်း
+    dragItem.style.transform = `translate3d(${translateX}px, ${translateY}px, 0)`;
 }
 
 function dragEnd(e) {
-    initialX = currentX;
-    initialY = currentY;
     isDragging = false;
 }
 
-function drag(e) {
-    if (isDragging) {
-        e.preventDefault(); // Screen ပါ လိုက်ရွေ့သွားခြင်းကို တားဆီးရန်
-        
-        if (e.type === "touchmove") {
-            currentX = e.touches[0].clientX - initialX;
-            currentY = e.touches[0].clientY - initialY;
-        } else {
-            currentX = e.clientX - initialX;
-            currentY = e.clientY - initialY;
-        }
-
-        xOffset = currentX;
-        yOffset = currentY;
-
-        // မျက်နှာပြင်ပြင်ပသို့ ခလုတ်ထွက်မသွားစေရန် Boundary သတ်မှတ်ခြင်း
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
-        
-        // ခလုတ်ကို CSS translate သုံးပြီး နေရာရွှေ့ပေးခြင်း
-        setTranslate(currentX, currentY, dragItem);
-    }
-}
-
-function setTranslate(xPos, yPos, el) {
-    el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
-}
-
-// ရွှေ့နေစဉ်အတွင်း Link ခလုတ်ကို မတော်တဆ ပွင့်မသွားစေရန် တားဆီးခြင်း
-const btnLink = dragItem.querySelector('.touch-btn-link');
-let moveDistance = 0;
-
-dragItem.addEventListener('mousedown', () => moveDistance = 0);
-dragItem.addEventListener('mousemove', () => { if(isDragging) moveDistance++; });
+// ရွှေ့နေစဉ်အတွင်း မတော်တဆ Link ပွင့်မသွားစေရန်နှင့် နှိပ်လိုက်ရင် ပုံမှန်ပွင့်စေရန်
 btnLink.addEventListener('click', (e) => {
     if (moveDistance > 5) { 
-        e.preventDefault(); // အဝိုင်းကို ဆွဲရွှေ့လိုက်တာဆိုရင် page ကို ကူးမသွားစေရ
+        e.preventDefault(); // ဆွဲရွှေ့နေတာဆိုရင် Link မပွင့်စေရ
     }
 });
     </script>
