@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>မြန်မာနိုင်ငံ လျှပ်စစ်မီတာခ တွက်ချက်စနစ် (၉/၂၀၂၄ နှုန်းသစ်)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for Myanmar (Pyidaungsu/Padauk) -->
+    <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Padauk', sans-serif; 
+        }
+        /* Custom smooth scroll and subtle transitions */
+        .smooth-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 text-slate-800 min-h-screen">
+
+    <div class="max-w-5xl mx-auto px-4 py-8 md:py-12">
+        
+        <!-- Premium Header Area -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-blue-600 tracking-tight mb-3">
+                မီတာခတွက်ချက်စနစ်
+            </h1>
+            <p class="text-slate-500 text-sm md:text-base max-w-md mx-auto">
+                အိမ်သုံးနှင့် လုပ်ငန်းသုံး လျှပ်စစ်မီတာခများကို အလွှာလိုက်နှုန်းထားများအတိုင်း တိကျမှန်ကန်စွာ တွက်ချက်ရန်အတွက် အသုံးပြုပြီးသား ယူနစ်စုစုပေါင်းကိုဖြစ်စေ၊ ယခင်လနှင့် ယခုလ မီတာဖတ်ကိန်းများကိုဖြစ်စေ ထည့်သွင်း၍ လွယ်ကူလျင်မြန်စွာ တွက်ချက်နိုင်ပါသည်။
+            </p>
+        </header>
+
+        <!-- Main Workspace Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Left Side: Interactive Input Controls -->
+            <div class="lg:col-span-7 bg-white rounded-3xl shadow-xl shadow-slate-100/50 p-6 md:p-8 border border-slate-100">
+                
+                <!-- Meter Type Segment Selector -->
+                <div class="mb-8">
+                    <label class="block text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">မီတာအမျိုးအစား ရွေးချယ်ရန်</label>
+                    <div class="grid grid-cols-2 gap-3 bg-slate-100 p-1.5 rounded-2xl">
+                        <button id="btnHome" onclick="setMeterType('home')" 
+                                class="smooth-transition py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 text-sm md:text-base bg-white text-blue-600 shadow-sm border border-slate-200">
+                            <span>🏠</span> အိမ်သုံး
+                        </button>
+                        <button id="btnBusiness" onclick="setMeterType('business')" 
+                                class="smooth-transition py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 text-sm md:text-base text-slate-600 hover:text-slate-900">
+                            <span>🏢</span> စီးပွားရေးသုံး
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Calculation Mode Selector (Radio Cards - Set to always 2 columns side-by-side) -->
+                <div class="mb-8">
+                    <label class="block text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">တွက်ချက်မှုပုံစံ</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Direct Mode Card -->
+                        <label class="smooth-transition relative flex flex-col justify-between p-3 rounded-2xl border-2 border-blue-500 bg-blue-50/30 cursor-pointer h-full" id="labelDirect">
+                            <div class="flex items-start gap-2 mb-2">
+                                <div class="p-1.5 bg-blue-100 text-blue-600 rounded-lg text-sm shrink-0">🔢</div>
+                                <div class="min-w-0">
+                                    <p class="font-bold text-slate-800 text-[11px] sm:text-xs md:text-sm leading-tight">တိုက်ရိုက်ထည့်မည်</p>
+                                    <p class="text-[9px] text-slate-400 hidden sm:block">စုစုပေါင်းသုံးယူနစ်သိလျှင်</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-end mt-auto">
+                                <input type="radio" name="calcMode" value="direct" checked onchange="toggleCalcMode('direct')" class="h-4.5 w-4.5 text-blue-600 focus:ring-blue-500 border-slate-300">
+                            </div>
+                        </label>
+
+                        <!-- Subtraction Mode Card -->
+                        <label class="smooth-transition relative flex flex-col justify-between p-3 rounded-2xl border border-slate-200 hover:border-slate-300 bg-white cursor-pointer h-full" id="labelSub">
+                            <div class="flex items-start gap-2 mb-2">
+                                <div class="p-1.5 bg-slate-100 text-slate-600 rounded-lg text-sm shrink-0">➖</div>
+                                <div class="min-w-0">
+                                    <p class="font-bold text-slate-800 text-[11px] sm:text-xs md:text-sm leading-tight">ယူနစ်နုတ်မည်</p>
+                                    <p class="text-[9px] text-slate-400 hidden sm:block">ယခင်နှင့်ယခုနုတ်ရန်</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-end mt-auto">
+                                <input type="radio" name="calcMode" value="subtraction" onchange="toggleCalcMode('subtraction')" class="h-4.5 w-4.5 text-blue-600 focus:ring-blue-500 border-slate-300">
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Input Fields Area -->
+                <div class="space-y-6">
+                    <!-- Direct Input Field -->
+                    <div id="directInputSection" class="smooth-transition">
+                        <label class="block text-slate-700 font-bold mb-2">စုစုပေါင်းအသုံးပြုယူနစ် (kWh)</label>
+                        <div class="relative">
+                            <input type="number" id="totalUnits" placeholder="ဥပမာ - ၁၅၀" 
+                                   class="w-full pl-5 pr-12 py-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none text-lg font-bold text-slate-800 placeholder-slate-300 transition-all">
+                            <span class="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">Units</span>
+                        </div>
+                    </div>
+
+                    <!-- Subtraction Input Fields (Set to always 2 columns side-by-side) -->
+                    <div id="subtractionSection" class="smooth-transition hidden grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-slate-700 font-bold text-xs sm:text-sm mb-2 truncate">ယခင်လ မီတာဖတ်ကိန်း</label>
+                            <input type="number" id="prevMeter" placeholder="0" 
+                                   class="w-full px-4 py-3.5 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none text-base font-bold text-slate-800 placeholder-slate-300 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-slate-700 font-bold text-xs sm:text-sm mb-2 truncate">ယခုလ မီတာဖတ်ကိန်း</label>
+                            <input type="number" id="currMeter" placeholder="0" 
+                                   class="w-full px-4 py-3.5 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none text-base font-bold text-slate-800 placeholder-slate-300 transition-all">
+                        </div>
+                    </div>
+
+                    <!-- Custom Alert Message Place (Inside UI for better UX) -->
+                    <div id="errorBox" class="hidden bg-rose-50 border border-rose-100 text-rose-600 text-sm p-4 rounded-2xl flex items-center gap-2">
+                        <span>⚠️</span> <span id="errorText"></span>
+                    </div>
+
+                    <!-- Calculate Button -->
+                    <button onclick="calculateBill()" 
+                            class="smooth-transition w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-500/20 text-lg flex items-center justify-center gap-2">
+                        မီတာခ တွက်ချက်မည်
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Side: Beautiful Invoice & Info Cards -->
+            <div class="lg:col-span-5 flex flex-col gap-6">
+                
+                <!-- Receipt Card (Dynamic Output) -->
+                <div id="resultCard" class="smooth-transition bg-slate-900 text-white rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden hidden">
+                    
+                    <!-- Top subtle pattern background -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl"></div>
+                    
+                    <h3 class="text-xl font-bold border-b border-slate-800 pb-4 mb-5 flex justify-between items-center relative z-10">
+                        <span>📋 ပြေစာအသေးစိတ်</span>
+                        <span id="resBadge" class="text-xs font-bold px-3 py-1.5 rounded-full"></span>
+                    </h3>
+                    
+                    <div class="space-y-4 relative z-10 text-sm md:text-base">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">စုစုပေါင်းအသုံးပြုယူနစ် -</span>
+                            <span id="resTotalUnits" class="font-extrabold text-yellow-400 text-lg"></span>
+                        </div>
+                        
+                        <div id="subDetails" class="hidden text-xs bg-slate-800/50 p-2.5 rounded-xl border border-slate-800 text-slate-400">
+                            ယခုလ ဖတ်ကိန်း (<span id="spanCurr" class="text-slate-200"></span>) - ယခင်လ ဖတ်ကိန်း (<span id="spanPrev" class="text-slate-200"></span>)
+                        </div>
+
+                        <!-- Level Breakdown Accordion Content -->
+                        <div class="border-t border-b border-slate-800/80 py-4 my-2">
+                            <p class="text-xs text-slate-400 font-semibold mb-2 uppercase tracking-wide">အလွှာလိုက် တွက်ချက်မှုအဆင့်ဆင့်</p>
+                            <div id="tierBreakdown" class="space-y-2 text-xs font-mono text-slate-300">
+                                <!-- Generated list of tiers -->
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">စုစုပေါင်း ယူနစ်ဖိုး ကျသင့်ငွေ:</span>
+                            <span id="resPowerCost" class="font-bold text-slate-200"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">မီတာထိန်းသိမ်းခ ဝန်ဆောင်ခ:</span>
+                            <span id="resServiceFee" class="font-bold text-slate-200"></span>
+                        </div>
+                        
+                        <!-- Grand Total Accentuated Layout -->
+                        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 rounded-2xl mt-6 flex justify-between items-center shadow-lg shadow-blue-500/10">
+                            <div>
+                                <p class="text-xs text-blue-100 uppercase tracking-wider font-bold">ကျသင့်ငွေ စုစုပေါင်း</p>
+                                <p class="text-xs text-blue-200">ဝန်ဆောင်ခ ပါဝင်ပြီးသားဖြစ်ပါသည်</p>
+                            </div>
+                            <span id="resTotalCost" class="text-2xl font-black text-white"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modern Information Table -->
+                <div class="bg-white rounded-3xl shadow-xl shadow-slate-100/50 p-6 border border-slate-100">
+                    <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="p-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs">ℹ️</span>
+                        <span>အသုံးပြုထားသော နှုန်းထားများအသေးစိတ်</span>
+                    </h3>
+                    
+                    <!-- Home Rates View -->
+                    <div id="homeRates" class="smooth-transition text-xs space-y-3">
+                        <div class="flex items-center justify-between font-bold text-blue-600 bg-blue-50/50 p-3 rounded-2xl border border-blue-50">
+                            <span>🏠 အိမ်သုံး (Residential)</span>
+                            <span class="text-[10px] uppercase">စက်တင်ဘာ ၂၀၂၄</span>
+                        </div>
+                        <div class="space-y-2 px-1">
+                            <div class="flex justify-between border-b border-slate-100 pb-2">
+                                <span class="text-slate-500">၁ - ၅၀ ယူနစ်ထိ</span> 
+                                <span class="font-bold text-slate-700">၅၀ ကျပ်</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-100 pb-2">
+                                <span class="text-slate-500">၅၁ - ၁ို၀ ယူနစ်ထိ</span> 
+                                <span class="font-bold text-slate-700">၁၀၀ ကျပ်</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-100 pb-2">
+                                <span class="text-slate-500">၁၀၁ - ၂၀၀ ယူနစ်ထိ</span> 
+                                <span class="font-bold text-slate-700">၁၅၀ ကျပ်</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-100 pb-2">
+                                <span class="text-slate-500">၂၀၁ ယူနစ်နှင့်အထက်</span> 
+                                <span class="font-bold text-slate-700">၃၀၀ကျပ်</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Business Rates View (Initially Hidden) -->
+                    <div id="businessRates" class="smooth-transition text-xs space-y-3 hidden">
+                        <div class="flex items-center justify-between font-bold text-amber-600 bg-amber-50/50 p-3 rounded-2xl border border-amber-50">
+                            <span>🏢 စီးပွားရေးသုံး (Business)</span>
+                            <span class="text-[10px] uppercase">စက်တင်ဘာ ၂၀၂၄</span>
+                        </div>
+                        <div class="space-y-2 px-1">
+                            <div class="flex justify-between border-b border-slate-100 pb-2">
+                                <span class="text-slate-500">၁ - ၅၀၀၀ ယူနစ်ထိ</span> 
+                                <span class="font-bold text-slate-700">၂၅၀ ကျပ်</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-100 pb-2">
+                                <span class="text-slate-500">၅၀၀၁ - ၂၀၀၀၀ ယူနစ်ထိ</span> 
+                                <span class="font-bold text-slate-700">၄၀၀ ကျပ်</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-100 pb-2">
+                                <span class="text-slate-500">၂၀၀၀၁ ယူနစ်နှင့်အထက်</span> 
+                                <span class="font-bold text-slate-700">၅၀၀ ကျပ်</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
+                        <span>* လစဉ် မီတာထိန်းသိမ်းခ ဝန်ဆောင်ခ</span>
+                        <span id="infoServiceFee" class="font-bold text-slate-600">၅၀၀ ကျပ်</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentType = 'home';
+        let calcMode = 'direct';
+
+        // Service Fees: Home = 500 MMK, Business = 2000 MMK
+        function getServiceFee() {
+            return currentType === 'home' ? 500 : 2000;
+        }
+
+        // 9/2024 tier rates structure
+        const homeTiers = [
+            { limit: 50, rate: 50 },
+            { limit: 50, rate: 100 },  // 51 to 100
+            { limit: 100, rate: 150 }, // 101 to 200
+            { limit: Infinity, rate: 300 } // 201+
+        ];
+
+        const businessTiers = [
+            { limit: 5000, rate: 250 },
+            { limit: 15000, rate: 400 }, // 5001 to 20000
+            { limit: Infinity, rate: 500 } // 20001+
+        ];
+
+        // Handles tab selection for Home vs Business
+        function setMeterType(type) {
+            currentType = type;
+            const btnHome = document.getElementById('btnHome');
+            const btnBusiness = document.getElementById('btnBusiness');
+            const infoServiceFee = document.getElementById('infoServiceFee');
+            
+            if (type === 'home') {
+                btnHome.className = "smooth-transition py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 text-sm md:text-base bg-white text-blue-600 shadow-sm border border-slate-200";
+                btnBusiness.className = "smooth-transition py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 text-sm md:text-base text-slate-600 hover:text-slate-900";
+                document.getElementById('homeRates').classList.remove('hidden');
+                document.getElementById('businessRates').classList.add('hidden');
+                infoServiceFee.innerText = "၅၀၀ ကျပ်";
+            } else {
+                btnBusiness.className = "smooth-transition py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 text-sm md:text-base bg-white text-amber-600 shadow-sm border border-slate-200";
+                btnHome.className = "smooth-transition py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 text-sm md:text-base text-slate-600 hover:text-slate-900";
+                document.getElementById('businessRates').classList.remove('hidden');
+                document.getElementById('homeRates').classList.add('hidden');
+                infoServiceFee.innerText = "၂,၀၀၀ ကျပ်";
+            }
+            
+            // Re-calculate if result is already open
+            if (!document.getElementById('resultCard').classList.contains('hidden')) {
+                calculateBill();
+            }
+        }
+
+        // Handles input type segment selection
+        function toggleCalcMode(mode) {
+            calcMode = mode;
+            const lDirect = document.getElementById('labelDirect');
+            const lSub = document.getElementById('labelSub');
+
+            if (mode === 'direct') {
+                document.getElementById('directInputSection').classList.remove('hidden');
+                document.getElementById('subtractionSection').classList.add('hidden');
+                lDirect.className = "smooth-transition relative flex flex-col justify-between p-3 rounded-2xl border-2 border-blue-500 bg-blue-50/30 cursor-pointer h-full";
+                lSub.className = "smooth-transition relative flex flex-col justify-between p-3 rounded-2xl border border-slate-200 hover:border-slate-300 bg-white cursor-pointer h-full";
+            } else {
+                document.getElementById('directInputSection').classList.add('hidden');
+                document.getElementById('subtractionSection').classList.remove('hidden');
+                lSub.className = "smooth-transition relative flex flex-col justify-between p-3 rounded-2xl border-2 border-blue-500 bg-blue-50/30 cursor-pointer h-full";
+                lDirect.className = "smooth-transition relative flex flex-col justify-between p-3 rounded-2xl border border-slate-200 hover:border-slate-300 bg-white cursor-pointer h-full";
+            }
+            hideError();
+        }
+
+        function showError(msg) {
+            const errorBox = document.getElementById('errorBox');
+            const errorText = document.getElementById('errorText');
+            errorText.innerText = msg;
+            errorBox.classList.remove('hidden');
+        }
+
+        function hideError() {
+            document.getElementById('errorBox').classList.add('hidden');
+        }
+
+        // Processing Logic for Myanmar electricity tier rules (V2 - 2024 Rates)
+        function calculateBill() {
+            hideError();
+            let totalUnits = 0;
+            let prev = 0;
+            let curr = 0;
+
+            if (calcMode === 'direct') {
+                const totalUnitsInput = document.getElementById('totalUnits').value;
+                if (totalUnitsInput === "" || parseFloat(totalUnitsInput) < 0) {
+                    showError("ကျေးဇူးပြု၍ စုစုပေါင်းယူနစ်ပမာဏကို မှန်ကန်စွာရိုက်ထည့်ပါ။");
+                    return;
+                }
+                totalUnits = parseInt(totalUnitsInput);
+                document.getElementById('subDetails').classList.add('hidden');
+            } else {
+                const prevInput = document.getElementById('prevMeter').value;
+                const currInput = document.getElementById('currMeter').value;
+
+                if (prevInput === "" || currInput === "") {
+                    showError("ယခင်လနှင့် ယခုလဖတ်ကိန်းများကို ဖြည့်သွင်းပေးပါ။");
+                    return;
+                }
+
+                prev = parseInt(prevInput);
+                curr = parseInt(currInput);
+
+                if (curr < prev) {
+                    showError("ယခုလမီတာဖတ်ကိန်းသည် ယခင်လဖတ်ကိန်းထက် ပိုများရပါမည်။");
+                    return;
+                }
+
+                totalUnits = curr - prev;
+                document.getElementById('spanPrev').innerText = prev.toLocaleString();
+                document.getElementById('spanCurr').innerText = curr.toLocaleString();
+                document.getElementById('subDetails').classList.remove('hidden');
+            }
+
+            let tiers = currentType === 'home' ? homeTiers : businessTiers;
+            let remaining = totalUnits;
+            let powerCost = 0;
+            let tierCalculations = [];
+            let currentTrack = 1;
+
+            // Tier Calculation processing logic
+            for (let i = 0; i < tiers.length; i++) {
+                if (remaining <= 0) break;
+                
+                const tier = tiers[i];
+                let unitsInTier = Math.min(remaining, tier.limit);
+                let costInTier = unitsInTier * tier.rate;
+                
+                powerCost += costInTier;
+                remaining -= unitsInTier;
+
+                let startUnit = currentTrack;
+                let endUnit = tier.limit === Infinity ? "အထက်" : (currentTrack + unitsInTier - 1);
+                let label = tier.limit === Infinity ? `${startUnit} ယူနစ်နှင့် အထက်` : `${startUnit} မှ ${endUnit} ယူနစ်`;
+
+                tierCalculations.push({
+                    range: label,
+                    units: unitsInTier,
+                    rate: tier.rate,
+                    cost: costInTier
+                });
+
+                currentTrack += unitsInTier;
+            }
+
+            // Current Service Fee based on meter type
+            const activeServiceFee = getServiceFee();
+
+            // UI Elements Rendering
+            const resBadge = document.getElementById('resBadge');
+            if (currentType === 'home') {
+                resBadge.innerText = "🏠 အိမ်သုံး";
+                resBadge.className = "text-xs font-bold px-3 py-1.5 rounded-full bg-blue-100 text-blue-700";
+            } else {
+                resBadge.innerText = "🏢 စီးပွားရေးသုံး";
+                resBadge.className = "text-xs font-bold px-3 py-1.5 rounded-full bg-amber-100 text-amber-700";
+            }
+
+            document.getElementById('resTotalUnits').innerText = totalUnits.toLocaleString() + " ယူနစ်";
+            document.getElementById('resPowerCost').innerText = powerCost.toLocaleString() + " ကျပ်";
+            document.getElementById('resServiceFee').innerText = activeServiceFee.toLocaleString() + " ကျပ်";
+            document.getElementById('resTotalCost').innerText = (powerCost + activeServiceFee).toLocaleString() + " ကျပ်";
+
+            // Generation of detailed tier lists inside receipt
+            const tierContainer = document.getElementById('tierBreakdown');
+            tierContainer.innerHTML = '';
+            
+            tierCalculations.forEach(calc => {
+                const item = document.createElement('div');
+                item.className = "flex justify-between items-center text-slate-300 py-1 border-b border-slate-800/40 last:border-0";
+                item.innerHTML = `
+                    <span class="text-[11px]">${calc.range} (${calc.units} x ${calc.rate} ကျပ်)</span>
+                    <span class="font-bold text-slate-100">+ ${calc.cost.toLocaleString()} ကျပ်</span>
+                `;
+                tierContainer.appendChild(item);
+            });
+
+            // Smoothly reveal calculation results
+            const resultCard = document.getElementById('resultCard');
+            resultCard.classList.remove('hidden');
+            resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>
