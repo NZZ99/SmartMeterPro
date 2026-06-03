@@ -178,32 +178,46 @@
     cursor: grab; /* လက်ဝါးပုံစံပြောင်းရန် */
     user-select: none;
 }
-
-.floating-touch-btn:active {
-    cursor: grabbing; /* ဆွဲနေစဉ် လက်သီးဆုပ်ပုံစံပြောင်းရန် */
+.floating-touch-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 9999;
+    touch-action: none; /* ဖုန်းမှာ screen ပါ လိုက်မရွေ့စေရန် */
+    
+    /* ဖုန်းမှာ ဖိထားရင် Popup Box တက်လာခြင်းကို ပိတ်ရန် */
+    -webkit-touch-callout: none; 
+    -webkit-user-select: none;   
+    -khtml-user-select: none;    
+    -moz-user-select: none;      
+    -ms-user-select: none;       
+    user-select: none;           
+    cursor: grab;
 }
 
-.touch-btn-link {
+.floating-touch-btn:active {
+    cursor: grabbing;
+}
+
+.touch-btn-content {
     display: flex;
     align-items: center;
-    text-decoration: none;
     background-color: #1e293b;
     border: 2px solid #334155;
     padding: 6px;
     border-radius: 40px;
-    color: #ffffff;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    max-width: 50px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
     overflow: hidden;
     white-space: nowrap;
-    transition: max-width 0.4s ease, border-color 0.3s;
-    pointer-events: auto;
+    max-width: 50px; /* စဖွင့်ချင်း icon ပဲပြမည် */
+    transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s;
 }
 
-.floating-touch-btn:hover .touch-btn-link {
+/* active ဖြစ်မှ စာသားပွင့်မည် */
+.floating-touch-btn.active .touch-btn-content {
     max-width: 220px;
-    background-color: #0f172a;
     border-color: #ef4444;
+    background-color: #0f172a;
 }
 
 .zap-icon-circle {
@@ -222,14 +236,23 @@
     font-family: sans-serif;
     font-size: 14px;
     font-weight: bold;
-    margin-left: 10px;
-    margin-right: 15px;
+    color: #ffffff;
+    text-decoration: none;
+    margin-left: 0px;
+    margin-right: 0px;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    visibility: hidden;
+    transition: opacity 0.2s ease, margin 0.3s ease;
+    pointer-events: none; /* စာသားမပွင့်မချင်း နှိပ်မရအောင်ပိတ်ထားသည် */
+    -webkit-user-drag: none; /* Link ကို ဆွဲရွှေ့တာမျိုး မဖြစ်စေရန် */
 }
 
-.floating-touch-btn:hover .touch-btn-text {
+.floating-touch-btn.active .touch-btn-text {
     opacity: 1;
+    visibility: visible;
+    margin-left: 10px;
+    margin-right: 15px;
+    pointer-events: auto; /* ပွင့်လာမှ နှိပ်လို့ရမည် */
 }
     </style>
 </head>
@@ -670,42 +693,102 @@
             setup(); animate();
             window.addEventListener('resize', setup);
         }
-// ခလုတ် စတင် Drag ဆွဲချိန်မှာ မူလ offset ကို မှတ်သားခြင်း
-function dragStart(e) {
-    const style = window.getComputedStyle(e.target, null);
-    e.dataTransfer.setData("text/plain",
-    (parseInt(style.getPropertyValue("left"),10) - e.clientX) + ',' + (parseInt(style.getPropertyValue("top"),10) - e.clientY));
+const dragBtn = document.getElementById("floatingCalcBtn");
+const calcLink = document.getElementById("calcLink");
+
+let isDragging = false;
+let startX, startY;
+let translateX = 0, translateY = 0;
+let isMoved = false;
+
+// စတင်ထိတွေ့ချိန် (MouseDown / TouchStart)
+function onStart(e) {
+    isDragging = true;
+    isMoved = false;
+    
+    // ဖုန်းဆိုရင် long press box တက်မလာအောင် တားဆီးခြင်း
+    if (e.type === "touchstart") {
+        startX = e.touches[0].clientX - translateX;
+        startY = e.touches[0].clientY - translateY;
+    } else {
+        e.preventDefault(); // Laptop မှာ ပုံရိပ်ပါလာခြင်းကို တားဆီးရန်
+        startX = e.clientX - translateX;
+        startY = e.clientY - translateY;
+    }
 }
 
-// တစ်ပြင်လုံးမှာ Drag Drop လုပ်ခွင့်ပေးရန်
-document.body.addEventListener('dragover', function(e) {
-    e.preventDefault();
-    return false;
-}, false);
+// ဆွဲရွှေ့နေချိန် (MouseMove / TouchMove)
+function onMove(e) {
+    if (!isDragging) return;
+    
+    const clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
+    
+    let newX = clientX - startX;
+    let newY = clientY - startY;
+    
+    // ရွေ့လျားမှု ရှိမရှိ စစ်ဆေးခြင်း (၃ ပစ်ဆယ်ထက်ကျော်မှ ရွှေ့တယ်လို့ သတ်မှတ်မည်)
+    if (Math.abs(newX - translateX) > 3 || Math.abs(newY - translateY) > 3) {
+        isMoved = true;
+    }
+    
+    if (isMoved) {
+        translateX = newX;
+        translateY = newY;
+        dragBtn.style.transform = `translate3d(${translateX}px, ${translateY}px, 0)`;
+        
+        // ဖုန်းမှာ screen လိုက်မလာအောင်နှင့် context menu ပိတ်ရန်
+        if (e.cancelable) e.preventDefault(); 
+    }
+}
 
-// ခလုတ်ကို လွှတ်လိုက်တဲ့ နေရာအသစ်မှာ သွားချပေးခြင်း
-document.body.addEventListener('drop', function(e) {
-    const offset = e.dataTransfer.getData("text/plain").split(',');
-    const dm = document.getElementById('floatingCalcBtn');
+// လက်လွှတ်လိုက်ချိန် (MouseUp / TouchEnd)
+function onEnd(e) {
+    if (!isDragging) return;
+    isDragging = false;
     
-    // Position ကို fixed ကနေ absolute/fixed ညှိပြီး နေရာအသစ် သတ်မှတ်ခြင်း
-    dm.style.left = (e.clientX + parseInt(offset[0],10)) + 'px';
-    dm.style.top = (e.clientY + parseInt(offset[1],10)) + 'px';
-    dm.style.bottom = 'auto'; // အောက်ခြေကပ်ထားတာကို ဖြုတ်ရန်
-    dm.style.right = 'auto';  // ညာဘက်ကပ်ထားတာကို ဖြုတ်ရန်
-    
-    e.preventDefault();
-    return false;
-}, false);
+    // နေရာမရွှေ့ဘဲ ရိုးရိုးပုတ်လိုက်တာ (Tap) ဆိုရင် စာသားပွင့်လာအောင်လုပ်မည်
+    if (!isMoved) {
+        if (!dragBtn.classList.contains("active")) {
+            dragBtn.classList.add("active");
+        }
+    }
+}
+
+// Events များ ချိတ်ဆက်ခြင်း
+dragBtn.addEventListener("mousedown", onStart);
+document.addEventListener("mousemove", onMove, { passive: false });
+document.addEventListener("mouseup", onEnd);
+
+dragBtn.addEventListener("touchstart", onStart, { passive: false });
+document.addEventListener("touchmove", onMove, { passive: false });
+document.addEventListener("touchend", onEnd);
+
+// ဖုန်းမှာ ဖိထားရင် ပေါ်လာမယ့် Context Menu တွေကို လုံးဝပိတ်ချပစ်ခြင်း
+dragBtn.addEventListener("contextmenu", (e) => e.preventDefault());
+
+// အပြင်ဘက်ကို နှိပ်ရင် စာသားပြန်ပိတ်ရန်
+document.addEventListener("click", (e) => {
+    if (!dragBtn.contains(e.target)) {
+        dragBtn.classList.remove("active");
+    }
+});
+
+// စာသားမပွင့်မချင်း link ကို အလုပ်မလုပ်စေရန် တားဆီးခြင်း
+calcLink.addEventListener("click", (e) => {
+    if (!dragBtn.classList.contains("active")) {
+        e.preventDefault();
+    }
+});
     </script>
     <script src="script.js"></script>
-<div id="floatingCalcBtn" class="floating-touch-btn" draggable="true" ondragstart="dragStart(event)">
-    <a href="unit.html" class="touch-btn-link" draggable="false">
+<div id="floatingCalcBtn" class="floating-touch-btn">
+    <div class="touch-btn-content">
         <div class="zap-icon-circle">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
         </div>
-        <span class="touch-btn-text">မီတာယူနစ်တွက်မည်</span>
-    </a>
+        <a href="unit.html" class="touch-btn-text" id="calcLink">မီတာယူနစ်တွက်မည်</a>
+    </div>
 </div>
 </body>
 </html>
