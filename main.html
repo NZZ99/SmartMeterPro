@@ -168,43 +168,44 @@
             font-weight: 800;
             text-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
         }
-/* Floating Button အပြင်ဘက်ဆုံး Box */
 .floating-touch-btn {
     position: fixed;
     bottom: 30px;
     right: 30px;
     z-index: 9999;
-    touch-action: none; /* ဖုန်းမှာ screen မရွေ့စေရန် */
-    user-select: none;
-    cursor: grab;
-}
-.floating-touch-btn:active {
-    cursor: grabbing;
-}
-
-/* အတွင်းပိုင်း ခလုတ်စနစ် */
-.touch-btn-content {
     display: flex;
     align-items: center;
+    cursor: grab; /* လက်ဝါးပုံစံပြောင်းရန် */
+    user-select: none;
+}
+
+.floating-touch-btn:active {
+    cursor: grabbing; /* ဆွဲနေစဉ် လက်သီးဆုပ်ပုံစံပြောင်းရန် */
+}
+
+.touch-btn-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
     background-color: #1e293b;
     border: 2px solid #334155;
     padding: 6px;
     border-radius: 40px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    max-width: 50px;
     overflow: hidden;
     white-space: nowrap;
-    max-width: 50px; /* စဖွင့်ချင်း Icon အဝိုင်းပဲ ပြထားမည် */
-    transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s;
+    transition: max-width 0.4s ease, border-color 0.3s;
+    pointer-events: auto;
 }
 
-/* active Class ဝင်လာမှ (နှိပ်လိုက်မှ) စာသားပွင့်လာမည် */
-.floating-touch-btn.active .touch-btn-content {
+.floating-touch-btn:hover .touch-btn-link {
     max-width: 220px;
-    border-color: #ef4444;
     background-color: #0f172a;
+    border-color: #ef4444;
 }
 
-/* Zap Icon အဝိုင်း */
 .zap-icon-circle {
     background-color: #ef4444;
     color: #ffffff;
@@ -217,28 +218,18 @@
     flex-shrink: 0;
 }
 
-/* စာသားလုံးဝပိတ်ထားရန် */
 .touch-btn-text {
     font-family: sans-serif;
     font-size: 14px;
     font-weight: bold;
-    color: #ffffff;
-    text-decoration: none;
-    margin-left: 0px;
-    margin-right: 0px;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.2s ease, margin 0.3s ease;
-    pointer-events: none; /* စာသားမပွင့်မချင်း နှိပ်လို့မရအောင် ပိတ်ထားသည် */
-}
-
-/* ခလုတ်ပွင့်လာမှ စာသားကို အသက်သွင်းရန် */
-.floating-touch-btn.active .touch-btn-text {
-    opacity: 1;
-    visibility: visible;
     margin-left: 10px;
     margin-right: 15px;
-    pointer-events: auto; /* စာသားပွင့်လာမှ Link နှိပ်ခွင့်ပြုမည် */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.floating-touch-btn:hover .touch-btn-text {
+    opacity: 1;
 }
     </style>
 </head>
@@ -679,89 +670,33 @@
             setup(); animate();
             window.addEventListener('resize', setup);
         }
-const dragBtn = document.getElementById("floatingCalcBtn");
-const calcLink = document.getElementById("calcLink");
+// ခလုတ် စတင် Drag ဆွဲချိန်မှာ မူလ offset ကို မှတ်သားခြင်း
+function dragStart(e) {
+    const style = window.getComputedStyle(e.target, null);
+    e.dataTransfer.setData("text/plain",
+    (parseInt(style.getPropertyValue("left"),10) - e.clientX) + ',' + (parseInt(style.getPropertyValue("top"),10) - e.clientY));
+}
 
-let isDragging = false;
-let startX, startY;
-let translateX = 0, translateY = 0;
-let isMoved = false; // ဆွဲရွှေ့နေတာလား၊ နှိပ်တာလား ခွဲခြားရန်
+// တစ်ပြင်လုံးမှာ Drag Drop လုပ်ခွင့်ပေးရန်
+document.body.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    return false;
+}, false);
 
-// Mouse & Touch Events များကို တစ်ပြိုင်နက် ချိတ်ဆက်ခြင်း
-const events = {
-    start: ['mousedown', 'touchstart'],
-    move: ['mousemove', 'touchmove'],
-    end: ['mouseup', 'touchend']
-};
-
-// စတင်ထိတွေ့ချိန်
-events.start.forEach(evt => {
-    dragBtn.addEventListener(evt, (e) => {
-        isDragging = true;
-        isMoved = false;
-        
-        const clientX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
-        
-        startX = clientX - translateX;
-        startY = clientY - translateY;
-    }, { passive: true });
-});
-
-// လက်ရှိဆွဲရွှေ့နေချိန်
-events.move.forEach(evt => {
-    document.addEventListener(evt, (e) => {
-        if (!isDragging) return;
-        
-        const clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
-        
-        let newX = clientX - startX;
-        let newY = clientY - startY;
-        
-        // နည်းနည်းလေးပဲ လှုပ်ရှားရုံနဲ့ ရွှေ့နေတယ်လို့ သတ်မှတ်မယ်
-        if (Math.abs(newX - translateX) > 3 || Math.abs(newY - translateY) > 3) {
-            isMoved = true; 
-        }
-        
-        translateX = newX;
-        translateY = newY;
-        
-        dragBtn.style.transform = `translate3d(${translateX}px, ${translateY}px, 0)`;
-        
-        if (e.type === "touchmove" && isMoved) e.preventDefault();
-    }, { passive: false });
-});
-
-// လက်လွှတ်လိုက်ချိန် (Click/Tap ပြီးဆုံးချိန်)
-events.end.forEach(evt => {
-    document.addEventListener(evt, (e) => {
-        if (!isDragging) return;
-        isDragging = false;
-        
-        // အကယ်၍ နေရာမရွှေ့ဘဲ ရိုးရိုး Tap/Click လုပ်လိုက်တာဆိုရင်
-        if (!isMoved && dragBtn.contains(e.target)) {
-            // ခလုတ်ထဲက Link စာသားကို တန်းမနှိပ်မိစေဘဲ၊ ခလုတ်ပွင့်မနေသေးရင် ပွင့်လာအောင်လုပ်မယ်
-            if (!dragBtn.classList.contains("active")) {
-                dragBtn.classList.add("active");
-            }
-        }
-    });
-});
-
-// ခလုတ်အပြင်ဘက်ကို နှိပ်လိုက်ရင် စာသားပြန်ပိတ်သွားစေရန်
-document.addEventListener("click", (e) => {
-    if (!dragBtn.contains(e.target)) {
-        dragBtn.classList.remove("active");
-    }
-});
-
-// Link စာသားပေါ် တည့်တည့်နှိပ်မှ unit.html ကိုသွားစေရန်
-calcLink.addEventListener("click", (e) => {
-    if (!dragBtn.classList.contains("active")) {
-        e.preventDefault();
-    }
-});
+// ခလုတ်ကို လွှတ်လိုက်တဲ့ နေရာအသစ်မှာ သွားချပေးခြင်း
+document.body.addEventListener('drop', function(e) {
+    const offset = e.dataTransfer.getData("text/plain").split(',');
+    const dm = document.getElementById('floatingCalcBtn');
+    
+    // Position ကို fixed ကနေ absolute/fixed ညှိပြီး နေရာအသစ် သတ်မှတ်ခြင်း
+    dm.style.left = (e.clientX + parseInt(offset[0],10)) + 'px';
+    dm.style.top = (e.clientY + parseInt(offset[1],10)) + 'px';
+    dm.style.bottom = 'auto'; // အောက်ခြေကပ်ထားတာကို ဖြုတ်ရန်
+    dm.style.right = 'auto';  // ညာဘက်ကပ်ထားတာကို ဖြုတ်ရန်
+    
+    e.preventDefault();
+    return false;
+}, false);
     </script>
     <script src="script.js"></script>
 <div id="floatingCalcBtn" class="floating-touch-btn">
