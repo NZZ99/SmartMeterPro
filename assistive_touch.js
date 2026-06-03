@@ -62,9 +62,10 @@
             pointer-events: auto;
         }
 
-        /* Hover လုပ်ချိန် သို့မဟုတ် Drag ဆွဲနေစဉ် Assistive Touch ကဲ့သို့ ပွင့်လာစေရန် */
+        /* Hover လုပ်ချိန်၊ Drag ဆွဲနေစဉ် သို့မဟုတ် Active (Expanded) ဖြစ်နေစဉ် စာသားကို ချဲ့ပြရန် */
         .floating-touch-btn:hover .touch-btn-link,
-        .floating-touch-btn.dragging .touch-btn-link {
+        .floating-touch-btn.dragging .touch-btn-link,
+        .floating-touch-btn.expanded .touch-btn-link {
             max-width: 220px;
             background-color: #0f172a;
             border-color: #ef4444;
@@ -93,7 +94,8 @@
         }
 
         .floating-touch-btn:hover .touch-btn-text,
-        .floating-touch-btn.dragging .touch-btn-text {
+        .floating-touch-btn.dragging .touch-btn-text,
+        .floating-touch-btn.expanded .touch-btn-text {
             opacity: 1;
         }
     `;
@@ -173,11 +175,35 @@
     document.addEventListener('touchmove', dragMove, { passive: false });
     document.addEventListener('touchend', dragEnd);
 
-    // Drag ဆွဲနေစဉ်အတွင်း unit.html ထဲသို့ မတော်တဆ ပွင့်မသွားစေရန် ထိန်းချုပ်ခြင်း
+    // ခလုတ်အပြင်ဘက်ကို နှိပ်မိပါက စာသားပြန်ပိတ်ရန် လုပ်ဆောင်ချက်
+    function closeExpandedBtn(e) {
+        if (!floatingBtn.contains(e.target)) {
+            floatingBtn.classList.remove('expanded');
+            document.removeEventListener('click', closeExpandedBtn);
+            document.removeEventListener('touchstart', closeExpandedBtn);
+        }
+    }
+
+    // ဖုန်းတွင် ပထမတစ်ချက်နှိပ်ပါက စာသားကိုအရင်ပြသပြီး၊ ဒုတိယတစ်ချက်နှိပ်မှသာ Link ထဲသို့ သွားစေခြင်း
     const touchLink = document.getElementById('touchLink');
     touchLink.addEventListener('click', function(e) {
         if (hasMoved) {
             e.preventDefault(); // drag ဆွဲနေတာဖြစ်ရင် သွားမယ့် link ကို ပိတ်ထားမယ်
+            return;
         }
+
+        const isExpanded = floatingBtn.classList.contains('expanded');
+
+        if (!isExpanded) {
+            e.preventDefault(); // ပထမတစ်ချက်နှိပ်လျှင် link ထဲသို့ တိုက်ရိုက်မသွားစေရန် တားဆီးသည်
+            floatingBtn.classList.add('expanded');
+
+            // ပြင်ပနေရာကို နှိပ်လျှင် ခလုတ်ပြန်ကျုံ့သွားစေရန် Event Listener ချိတ်ဆက်ခြင်း
+            setTimeout(() => {
+                document.addEventListener('click', closeExpandedBtn);
+                document.addEventListener('touchstart', closeExpandedBtn);
+            }, 50);
+        }
+        // ဒုတိယတစ်ချက် (isExpanded ဖြစ်နေချိန်) နှိပ်ပါက link ထဲသို့ ပုံမှန်အတိုင်း ဝင်ရောက်သွားပါလိမ့်မည်။
     });
 })();
