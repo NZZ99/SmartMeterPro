@@ -30,7 +30,7 @@
     style.textContent = `
         .floating-touch-btn {
             position: fixed;
-            bottom: 100px;
+            top: 50%;
             left: 20px;
             transform: translateY(-50%);
             z-index: 9999;
