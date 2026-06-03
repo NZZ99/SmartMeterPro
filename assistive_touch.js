@@ -30,7 +30,7 @@
     style.textContent = `
         .floating-touch-btn {
             position: fixed;
-            bottom: 50px;
+            bottom: 100px;
             left: 20px;
             transform: translateY(-50%);
             z-index: 9999;
@@ -127,6 +127,7 @@
         floatingBtn.style.top = initialY + 'px';
         floatingBtn.style.bottom = 'auto';
         floatingBtn.style.right = 'auto';
+        floatingBtn.style.transform = 'none';
     }
 
     function dragMove(e) {
