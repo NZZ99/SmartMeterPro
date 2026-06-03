@@ -171,7 +171,7 @@
         /* Floating Button အောက်ခံ Container */
 .floating-touch-btn {
     position: fixed;
-    bottom: 30px; /* အောက်ခြေမှ အကွာအဝေး */
+    bottom: 10px; /* အောက်ခြေမှ အကွာအဝေး */
     right: 30px;  /* ညာဘက်မှ အကွာအဝေး (စဖွင့်ချင်း ဒီနေရာမှာ ပေါ်မည်) */
     z-index: 9999; /* တခြား data တွေရဲ့ အပေါ်ကနေ အမြဲပေါ်နေစေရန် */
     display: flex;
@@ -307,14 +307,6 @@
                             Search
                         </button>
                     </div>
-                      <div id="floatingCalcBtn" class="floating-touch-btn">
-    <a href="unit.html" class="touch-btn-link" draggable="false">
-        <div class="zap-icon-circle">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        </div>
-        <span class="touch-btn-text">မီတာယူနစ်တွက်မည်</span>
-    </a>
-</div>
                 </form>
 
                 <div class="flex-1 overflow-y-auto pb-[120px] space-y-4 scrollbar-hide">
@@ -768,5 +760,13 @@ btnLink.addEventListener('click', (e) => {
 });
     </script>
     <script src="script.js"></script>
+    <div id="floatingCalcBtn" class="floating-touch-btn">
+    <a href="unit.html" class="touch-btn-link" draggable="false">
+        <div class="zap-icon-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <span class="touch-btn-text">မီတာယူနစ်တွက်မည်</span>
+    </a>
+</div>
 </body>
 </html>
