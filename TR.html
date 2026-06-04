@@ -2,7 +2,8 @@
 <html lang="my">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <!-- maximum-scale=1.0 နှင့် user-scalable=no တို့ကြောင့် ဖုန်း browser ထဲတွင် zoom ဆွဲ၍မရအောင် လုံးဝပိတ်ဆို့ထားပါသည် -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>TR Sheet Viewer</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -27,8 +28,9 @@
       position: relative;
       width: 100%;
       height: calc(100vh - 64px); /* Subtract header height */
-      overflow: auto; /* Allow scrolling */
+      overflow: auto; /* Allow normal scrolling/panning */
       -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pan-y; /* Zoom ဆွဲခြင်းကို တားဆီးပြီး scroll ဆွဲခြင်းကိုသာ ခွင့်ပြုသည် */
     }
 
     /* Scaling Wrapper (White Screen မဖြစ်အောင် ကြားခံအလွှာဖြင့် ထိန်းချုပ်ခြင်း) */
@@ -101,17 +103,15 @@
     // Initialize Lucide Icons
     lucide.createIcons();
 
-    // Default Zoom အား 40% (0.4) အသေ သတ်မှတ်ထားပါသည်
+    // Default Zoom အား 40% (0.4) အသေ သတ်မှတ်ထားပြီး ဘယ်တော့မှ မပြောင်းလဲတော့ပါ
     let currentScale = 0.4; 
-    let initialDist = 0;
-    let initialScale = 0.4;
 
     // Hide Loading Spinner once iframe is loaded
     function hideLoading() {
       document.getElementById('loading').style.display = 'none';
     }
 
-    // Mathematical Responsive Scaling Logic
+    // Mathematical Responsive Scaling Logic (40% scale ကို အမြဲတမ်း တည်ငြိမ်စွာ ဆွဲပေးထားပါသည်)
     function applyScaling() {
       const container = document.getElementById('iframe-container');
       const wrapper = document.getElementById('scaling-wrapper');
@@ -121,7 +121,6 @@
       const containerWidth = container.clientWidth;
       const containerHeight = container.clientHeight;
 
-      // အပြင်ဘက် wrapper အား scale လုပ်ခြင်းဖြင့် iframe error တက်ခြင်းကို ကာကွယ်ပါသည်
       wrapper.style.width = (containerWidth / currentScale) + 'px';
       wrapper.style.height = (containerHeight / currentScale) + 'px';
       wrapper.style.transform = `scale(${currentScale})`;
@@ -134,47 +133,6 @@
       
       // Re-calculate scaling when window resizes
       window.addEventListener('resize', applyScaling);
-      
-      // Touch-based Pinch-to-Zoom (လက်နှစ်ချောင်းဖြင့် ချုံ့/ချဲ့နိုင်ရန် လုပ်ဆောင်ခြင်း)
-      setupPinchToZoom();
-    }
-
-    // Touch Gestures Control (Pinch to Zoom)
-    function setupPinchToZoom() {
-      const container = document.getElementById('iframe-container');
-      
-      container.addEventListener('touchstart', (e) => {
-        if (e.touches.length === 2) {
-          initialDist = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-          );
-          initialScale = currentScale;
-        }
-      });
-
-      container.addEventListener('touchmove', (e) => {
-        if (e.touches.length === 2 && initialDist > 0) {
-          e.preventDefault();
-          
-          const currentDist = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-          );
-          
-          const factor = currentDist / initialDist;
-          
-          // Zoom ကို 0.15 (15%) မှ 3.0 (300%) အထိ သတ်မှတ်ပေးထားသည်
-          currentScale = Math.min(Math.max(initialScale * factor, 0.15), 3.0);
-          applyScaling();
-        }
-      }, { passive: false });
-
-      container.addEventListener('touchend', (e) => {
-        if (e.touches.length < 2) {
-          initialDist = 0;
-        }
-      });
     }
 
     // Smart back and tab close logic to prevent Web App from restarting
