@@ -22,37 +22,18 @@
       border: 1px solid rgba(255, 255, 255, 0.05);
     }
     
-    /* Styles to make Google Sheet Iframe fit to screen */
+    /* Styles to make Google Sheet Iframe fit to screen like a PDF */
     .iframe-container {
       position: relative;
       width: 100%;
       height: calc(100vh - 64px); /* Subtract header height */
-      overflow: auto; /* Allow scrolling if sheet is extremely wide */
-      -webkit-overflow-scrolling: touch;
+      overflow: hidden; /* Hide outer scrollbar as we scale mathematically */
     }
-
-    /* Desktop version (Normal size) */
-    iframe {
-      width: 100%;
-      height: 100%;
+    
+    #sheet-iframe {
       border: none;
-      display: block;
-    }
-
-    /* Mobile version responsive scaling (ဖုန်းမျက်နှာပြင်များအတွက် ဇယားအား ကျုံ့ပေးမည့်စနစ်) */
-    @media (max-width: 768px) {
-      .iframe-container {
-        overflow: auto; /* စာမျက်နှာမပျက်ဘဲ scroll ဆွဲကြည့်နိုင်ရန် */
-      }
-      iframe {
-        /* Iframe ၏ဧရိယာကို 140% အထိ ချဲ့ထုတ်ပြီး transform scale သုံး၍ ပြန်ကျုံ့ခြင်းဖြင့် 
-           စာလုံးများကို သေးငယ်စေပြီး တစ်မျက်နှာတည်း၌ ကွက်တိ ပိုမိုပေါ်စေပါသည်။
-        */
-        width: 140%;
-        height: 140%;
-        transform: scale(0.610); /* 1 / 1.4 (71% ခန့် သေးသွားစေရန်) */
-        transform-origin: top left;
-      }
+      transform-origin: top left;
+      transition: transform 0.2s ease-out;
     }
   </style>
 </head>
@@ -60,27 +41,37 @@
 
   <!-- Header Section -->
   <header class="liquid-glass sticky top-0 z-50 px-4 py-3 flex items-center justify-between shadow-lg h-16">
-    <!-- Close Tab Button (Closes this tab and returns to main app) -->
-    <button onclick="window.close();" class="flex items-center gap-1.5 text-slate-400 hover:text-red-400 px-3 py-1.5 rounded-xl hover:bg-slate-800/50 transition-all text-sm font-semibold">
-      <i data-lucide="X" class="w-5 h-5"></i>
-      နောက်သို့
+    <!-- Close Tab Button -->
+    <button onclick="window.close();" class="flex items-center gap-1.5 text-slate-400 hover:text-red-400 px-2.5 py-1.5 rounded-xl hover:bg-slate-800/50 transition-all text-xs md:text-sm font-semibold">
+      <i data-lucide="x" class="w-4 h-4 md:w-5 md:h-5"></i>
+      ပိတ်မည်
     </button>
 
-    <!-- Title -->
-    <h1 class="text-base font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 flex items-center gap-2">
-      <i data-lucide="file-spreadsheet" class="text-blue-400 w-5 h-5"></i>
-      TR အချက်အလက်များ
-    </h1>
+    <!-- Zoom Controls (PDF ကဲ့သို့ ကိုယ်တိုင် ချုံ့/ချဲ့နိုင်ရန်) -->
+    <div class="flex items-center gap-1.5 bg-slate-950/80 px-2 py-1 rounded-xl border border-slate-800">
+      <button onclick="zoomOut()" class="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-all">
+        <i data-lucide="minus" class="w-4 h-4"></i>
+      </button>
+      <span id="zoom-percent" class="text-[10px] md:text-xs font-mono font-bold text-blue-400 min-w-[40px] text-center">100%</span>
+      <button onclick="zoomIn()" class="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-all">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+      </button>
+      <button onclick="resetZoom()" class="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-all" title="Auto Fit">
+        <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
+      </button>
+    </div>
 
-    <!-- Refresh Button to reload Google Sheet data -->
-    <button onclick="refreshSheet()" class="p-2 text-slate-400 hover:text-blue-400 hover:bg-blue-600/10 rounded-xl transition-all" title="Refresh Data">
-      <i data-lucide="refresh-cw" id="refresh-icon" class="w-5 h-5"></i>
-    </button>
+    <!-- Right Actions (Refresh & Title) -->
+    <div class="flex items-center gap-2">
+      <button onclick="refreshSheet()" class="p-2 text-slate-400 hover:text-blue-400 hover:bg-blue-600/10 rounded-xl transition-all" title="Refresh Data">
+        <i data-lucide="refresh-cw" id="refresh-icon" class="w-4 h-4 md:w-5 md:h-5"></i>
+      </button>
+    </div>
   </header>
 
   <!-- Google Sheets Embed Area -->
   <main class="flex-1 flex flex-col overflow-hidden">
-    <div class="iframe-container relative bg-white">
+    <div id="iframe-container" class="iframe-container relative bg-white">
       <!-- Loading Spinner -->
       <div id="loading" class="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center gap-3 z-10">
         <div class="w-10 h-10 border-4 border-blue-500/20 border-t-blue-400 rounded-full animate-spin"></div>
@@ -94,7 +85,7 @@
       <iframe 
         id="sheet-iframe"
         src="https://docs.google.com/spreadsheets/d/e/2PACX-1vSpf-bFoTK61C9_0oHeC__eeEgq2KtDZUNLcw7AF8XAZMidkZSGuN46Q2PuSZSjYjvJoKyTuNmN97Kb/pubhtml" 
-        onload="hideLoading()">
+        onload="initSheetScaling()">
       </iframe>
     </div>
   </main>
@@ -103,9 +94,71 @@
     // Initialize Lucide Icons
     lucide.createIcons();
 
+    let baseWidth = 980; // Standard layout width for a Google Sheet table
+    let customZoomOffset = 0; // Manual adjustment offset
+
     // Hide Loading Spinner once iframe is loaded
     function hideLoading() {
       document.getElementById('loading').style.display = 'none';
+    }
+
+    // Mathematical Responsive Scaling Logic (PDF-like Auto Fit)
+    function applyScaling() {
+      const container = document.getElementById('iframe-container');
+      const iframe = document.getElementById('sheet-iframe');
+      const zoomText = document.getElementById('zoom-percent');
+      
+      if (!container || !iframe) return;
+
+      const containerWidth = container.clientWidth;
+      const containerHeight = container.clientHeight;
+
+      // Apply manual zoom offset if set, otherwise auto-calculate to fit width
+      let targetWidth = baseWidth + customZoomOffset;
+      if (targetWidth < 320) targetWidth = 320; // Prevent dividing by zero or extremely small scale
+
+      let scale = containerWidth / targetWidth;
+
+      // If desktop/laptop screen is larger than target width, keep it 100% (no upscale needed)
+      if (scale > 1 && customZoomOffset === 0) {
+        scale = 1;
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.transform = 'none';
+      } else {
+        // Core Auto-Fit Math Formula
+        iframe.style.width = targetWidth + 'px';
+        iframe.style.height = (containerHeight / scale) + 'px';
+        iframe.style.transform = `scale(${scale})`;
+      }
+
+      // Display the current Zoom Percentage in UI
+      zoomText.textContent = Math.round(scale * 100) + '%';
+    }
+
+    // Initialize scaling when iframe finishes loading
+    function initSheetScaling() {
+      hideLoading();
+      applyScaling();
+      
+      // Re-calculate scaling when user rotates screen or resizes window
+      window.addEventListener('resize', applyScaling);
+    }
+
+    // Manual Zoom Functions
+    function zoomIn() {
+      customZoomOffset -= 80; // Decreasing the virtual width increases visual zoom (Scale increases)
+      applyScaling();
+    }
+
+    function zoomOut() {
+      customZoomOffset += 80; // Increasing the virtual width decreases visual zoom (Scale decreases)
+      applyScaling();
+    }
+
+    function resetZoom() {
+      customZoomOffset = 0; // Reset to perfect Auto-Fit width
+      applyScaling();
     }
 
     // Refresh function to reload the iframe with a timestamp to bypass caching
