@@ -56,10 +56,10 @@
   <!-- Header Section -->
   <header class="liquid-glass sticky top-0 z-50 px-4 py-3 flex items-center justify-between shadow-lg h-16">
     <!-- Close Tab Button (App အစကနေ ပြန်မလည်စေရန် Smart Navigation သုံးထားပါသည်) -->
-    <button onclick="goBackOrClose();" class="flex items-center gap-1.5 text-slate-400 hover:text-red-400 px-2.5 py-1.5 rounded-xl hover:bg-slate-800/50 transition-all text-xs md:text-sm font-semibold">
-      <i data-lucide="chevrons-left" class="w-4 h-4 md:w-5 md:h-5"></i>
-      နောက်သို့
-    </button>
+<button onclick="goBack()" class="fixed top-4 left-4 z-50 flex items-center gap-2 py-2 px-4 rounded-full bg-slate-800/80 hover:bg-slate-700 border border-slate-700/50 hover:border-blue-500 text-slate-300 hover:text-blue-400 transition-all duration-300 shadow-lg backdrop-blur-md group text-sm font-semibold">
+    <i data-lucide="circle-arrow-out-up-left" class="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5"></i>
+    <span class="tracking-wide">နောက်သို့</span>
+  </button>
 
     <!-- Center Title -->
     <h1 class="text-sm md:text-base font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 flex items-center gap-2">
