@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="my">
 <head>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>မြန်မာနိုင်ငံ လျှပ်စစ်မီတာခ တွက်ချက်စနစ် (၉/၂၀၂၄ နှုန်းသစ်)</title>
@@ -19,6 +20,14 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-slate-100 text-slate-800 min-h-screen">
+    <body>
+  <!-- ဒီနေရာမှာ လာထည့်ပါ -->
+  <button onclick="goBack()" class="fixed top-4 left-4 z-50 flex items-center gap-2 py-2 px-4 rounded-full bg-slate-800/80 hover:bg-slate-700 border border-slate-700/50 hover:border-blue-500 text-slate-300 hover:text-blue-400 transition-all duration-300 shadow-lg backdrop-blur-md group text-sm font-semibold">
+    <i data-lucide="circle-arrow-out-up-left" class="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5"></i>
+    <span class="tracking-wide">နောက်သို့</span>
+  </button>
+
+  <!-- သင့်ရဲ့ မူရင်း content များ... -->
 
     <div class="max-w-5xl mx-auto px-4 py-8 md:py-12">
         
@@ -436,5 +445,21 @@
             resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     </script>
+        <!-- သင့်ရဲ့ မူရင်း content များ... -->
+
+  <!-- ဒီနေရာမှာ လာထည့်ပါ -->
+  <script>
+    lucide.createIcons(); // Icon တွေ အသက်သွင်းဖို့
+
+    function goBack() {
+      if (document.referrer !== "") {
+        window.history.back(); // မူရင်း page အတိုင်း back ဆုတ်ရန်
+      } else {
+        window.location.href = "index.html"; // Back ဆုတ်စရာမရှိရင် ပို့ပေးမယ့်နေရာ
+      }
+    }
+  </script>
+</body>
+</html>
 </body>
 </html>
