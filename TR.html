@@ -2,7 +2,7 @@
 <html lang="my">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <title>TR Sheet Viewer</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -21,17 +21,38 @@
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.05);
     }
+    
     /* Styles to make Google Sheet Iframe fit to screen */
     .iframe-container {
       position: relative;
       width: 100%;
       height: calc(100vh - 64px); /* Subtract header height */
-      overflow: hidden;
+      overflow: auto; /* Allow scrolling if sheet is extremely wide */
+      -webkit-overflow-scrolling: touch;
     }
+
+    /* Desktop version (Normal size) */
     iframe {
       width: 100%;
       height: 100%;
       border: none;
+      display: block;
+    }
+
+    /* Mobile version responsive scaling (ဖုန်းမျက်နှာပြင်များအတွက် ဇယားအား ကျုံ့ပေးမည့်စနစ်) */
+    @media (max-width: 768px) {
+      .iframe-container {
+        overflow: auto; /* စာမျက်နှာမပျက်ဘဲ scroll ဆွဲကြည့်နိုင်ရန် */
+      }
+      iframe {
+        /* Iframe ၏ဧရိယာကို 140% အထိ ချဲ့ထုတ်ပြီး transform scale သုံး၍ ပြန်ကျုံ့ခြင်းဖြင့် 
+           စာလုံးများကို သေးငယ်စေပြီး တစ်မျက်နှာတည်း၌ ကွက်တိ ပိုမိုပေါ်စေပါသည်။
+        */
+        width: 140%;
+        height: 140%;
+        transform: scale(0.714); /* 1 / 1.4 (71% ခန့် သေးသွားစေရန်) */
+        transform-origin: top left;
+      }
     }
   </style>
 </head>
@@ -97,7 +118,7 @@
       loader.style.display = 'flex';
 
       const currentSrc = iframe.src;
-      if (currentSrc && currentSrc !== "https://docs.google.com/spreadsheets/d/e/2PACX-1vSpf-bFoTK61C9_0oHeC__eeEgq2KtDZUNLcw7AF8XAZMidkZSGuN46Q2PuSZSjYjvJoKyTuNmN97Kb/pubhtml") {
+      if (currentSrc && currentSrc !== "YOUR_GOOGLE_SHEET_PUBLISH_LINK_HERE&chrome=false&headers=false") {
         const separator = currentSrc.includes('?') ? '&' : '?';
         const cleanSrc = currentSrc.split(/[&?]t=/)[0];
         iframe.src = cleanSrc + separator + 't=' + new Date().getTime();
