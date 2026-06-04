@@ -27,13 +27,14 @@
       position: relative;
       width: 100%;
       height: calc(100vh - 64px); /* Subtract header height */
-      overflow: hidden; /* Hide outer scrollbar as we scale mathematically */
+      overflow: hidden; /* Touch Event များဖြင့် ချုံ့/ချဲ့မည်ဖြစ်၍ scrollbar အပြင်ကို ဖျောက်ထားသည် */
+      touch-action: none; /* Browser ရဲ့ default pinch-zoom ကို ပိတ်ပြီး custom code ဖြင့် ကိုင်တွယ်ရန် */
     }
     
     #sheet-iframe {
       border: none;
       transform-origin: top left;
-      transition: transform 0.2s ease-out;
+      transition: transform 0.1s ease-out;
     }
   </style>
 </head>
@@ -47,21 +48,13 @@
       ပိတ်မည်
     </button>
 
-    <!-- Zoom Controls (PDF ကဲ့သို့ ကိုယ်တိုင် ချုံ့/ချဲ့နိုင်ရန်) -->
-    <div class="flex items-center gap-1.5 bg-slate-950/80 px-2 py-1 rounded-xl border border-slate-800">
-      <button onclick="zoomOut()" class="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-all">
-        <i data-lucide="minus" class="w-4 h-4"></i>
-      </button>
-      <span id="zoom-percent" class="text-[10px] md:text-xs font-mono font-bold text-blue-400 min-w-[40px] text-center">100%</span>
-      <button onclick="zoomIn()" class="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-all">
-        <i data-lucide="plus" class="w-4 h-4"></i>
-      </button>
-      <button onclick="resetZoom()" class="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-all" title="Auto Fit">
-        <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
-      </button>
-    </div>
+    <!-- Center Title (ခေါင်းစဉ်အား အလယ်တွင် ထားရှိပါသည်) -->
+    <h1 class="text-sm md:text-base font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 flex items-center gap-2">
+      <i data-lucide="file-spreadsheet" class="text-blue-400 w-4 h-4 md:w-5 md:h-5"></i>
+      TR အချက်အလက်များ
+    </h1>
 
-    <!-- Right Actions (Refresh & Title) -->
+    <!-- Right Actions (Refresh) -->
     <div class="flex items-center gap-2">
       <button onclick="refreshSheet()" class="p-2 text-slate-400 hover:text-blue-400 hover:bg-blue-600/10 rounded-xl transition-all" title="Refresh Data">
         <i data-lucide="refresh-cw" id="refresh-icon" class="w-4 h-4 md:w-5 md:h-5"></i>
@@ -94,46 +87,30 @@
     // Initialize Lucide Icons
     lucide.createIcons();
 
-    let baseWidth = 980; // Standard layout width for a Google Sheet table
-    let customZoomOffset = 0; // Manual adjustment offset
+    // Default Zoom အား 40% (0.4) အသေ သတ်မှတ်ထားပါသည်
+    let currentScale = 0.4; 
+    let initialDist = 0;
+    let initialScale = 0.4;
 
     // Hide Loading Spinner once iframe is loaded
     function hideLoading() {
       document.getElementById('loading').style.display = 'none';
     }
 
-    // Mathematical Responsive Scaling Logic (PDF-like Auto Fit)
+    // Mathematical Responsive Scaling Logic
     function applyScaling() {
       const container = document.getElementById('iframe-container');
       const iframe = document.getElementById('sheet-iframe');
-      const zoomText = document.getElementById('zoom-percent');
       
       if (!container || !iframe) return;
 
       const containerWidth = container.clientWidth;
       const containerHeight = container.clientHeight;
 
-      // Apply manual zoom offset if set, otherwise auto-calculate to fit width
-      let targetWidth = baseWidth + customZoomOffset;
-      if (targetWidth < 320) targetWidth = 320; // Prevent dividing by zero or extremely small scale
-
-      let scale = containerWidth / targetWidth;
-
-      // If desktop/laptop screen is larger than target width, keep it 100% (no upscale needed)
-      if (scale > 1 && customZoomOffset === 0) {
-        scale = 1;
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        iframe.style.transform = 'none';
-      } else {
-        // Core Auto-Fit Math Formula
-        iframe.style.width = targetWidth + 'px';
-        iframe.style.height = (containerHeight / scale) + 'px';
-        iframe.style.transform = `scale(${scale})`;
-      }
-
-      // Display the current Zoom Percentage in UI
-      zoomText.textContent = Math.round(scale * 100) + '%';
+      // 40% scale အခြေခံဖြင့် iframe ၏ width/height အား တွက်ချက်ခြင်း
+      iframe.style.width = (containerWidth / currentScale) + 'px';
+      iframe.style.height = (containerHeight / currentScale) + 'px';
+      iframe.style.transform = `scale(${currentScale})`;
     }
 
     // Initialize scaling when iframe finishes loading
@@ -141,24 +118,51 @@
       hideLoading();
       applyScaling();
       
-      // Re-calculate scaling when user rotates screen or resizes window
+      // Re-calculate scaling when window resizes
       window.addEventListener('resize', applyScaling);
+      
+      // Touch-based Pinch-to-Zoom (လက်နှစ်ချောင်းဖြင့် ချုံ့/ချဲ့နိုင်ရန် လုပ်ဆောင်ခြင်း)
+      setupPinchToZoom();
     }
 
-    // Manual Zoom Functions
-    function zoomIn() {
-      customZoomOffset -= 80; // Decreasing the virtual width increases visual zoom (Scale increases)
-      applyScaling();
-    }
+    // Touch Gestures Control (လက်နှစ်ချောင်း သုံး၍ ချုံ့/ချဲ့သည့် စနစ်)
+    function setupPinchToZoom() {
+      const container = document.getElementById('iframe-container');
+      
+      container.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+          // လက်ချောင်းနှစ်ခုကြား အကွာအဝေးကို စတင်တိုင်းတာခြင်း
+          initialDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          initialScale = currentScale;
+        }
+      });
 
-    function zoomOut() {
-      customZoomOffset += 80; // Increasing the virtual width decreases visual zoom (Scale decreases)
-      applyScaling();
-    }
+      container.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2 && initialDist > 0) {
+          e.preventDefault(); // browser ၏ မူရင်း zoom စနစ်အား ခေတ္တရပ်တန့်ရန်
+          
+          const currentDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          
+          // အချိုးအစား တွက်ချက်ခြင်း
+          const factor = currentDist / initialDist;
+          
+          // Zoom အား အနည်းဆုံး 15% မှ အများဆုံး 300% အထိ ကန့်သတ်ပေးထားပါသည်
+          currentScale = Math.min(Math.max(initialScale * factor, 0.15), 3.0);
+          applyScaling();
+        }
+      }, { passive: false });
 
-    function resetZoom() {
-      customZoomOffset = 0; // Reset to perfect Auto-Fit width
-      applyScaling();
+      container.addEventListener('touchend', (e) => {
+        if (e.touches.length < 2) {
+          initialDist = 0;
+        }
+      });
     }
 
     // Refresh function to reload the iframe with a timestamp to bypass caching
