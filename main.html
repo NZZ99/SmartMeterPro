@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="stylesheet" href="ai-button.css">
     <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="Nyizaw.PNG">
     <!-- Google tag (gtag.js) -->
@@ -170,6 +169,7 @@
             text-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
         }
     </style>
+    <link rel="stylesheet" href="/ai-button.css">
 </head>
 <body>
     <div id="app" class="flex flex-col h-screen overflow-hidden relative">
@@ -618,18 +618,6 @@
     <script src="script.js"></script>
     <!-- main.html ရဲ့ အောက်ဆုံး </body> မပိတ်ခင်လေးမှာ ဒါကို ထည့်ပါ -->
     <script src="assistive_touch.js"></script>
-        <div id="ai-button-container"></div>
-    <script>
-        fetch('ai-button.html')
-            .then(res => res.text())
-            .then(data => {
-                document.getElementById('ai-button-container').innerHTML = data;
-                // HTML တက်လာပြီးမှ JS ကို Run စေဖို့ ဒီထဲမှာ ပြန်ခေါ်ထားတာပါ
-                const script = document.createElement('script');
-                script.src = 'ai-button.js';
-                document.body.appendChild(script);
-            });
-    </script>
-</body>
+    <script src="/ai-button.js"></script>
 </body>
 </html>
