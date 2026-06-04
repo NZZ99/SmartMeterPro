@@ -4,19 +4,16 @@
         const box = document.getElementById('ai-response-box');
         const closeBtn = document.getElementById('ai-close-btn');
 
-        // ခလုတ်တွေ ရှာမတွေ့ရင် ခေတ္တစောင့်ပြီး ပြန်ရှာမယ်
         if (!btn || !box || !closeBtn) {
             setTimeout(setupAI, 500);
             return;
         }
 
-        // ပိတ်သည့် ခလုတ်နှိပ်ရင် ပိတ်ရန်
         closeBtn.onclick = function(e) {
             e.stopPropagation();
             box.classList.add('hidden');
         };
 
-        // --- Drag & Drop Function (iPhone AssistiveTouch စတိုင်) ---
         let isDragging = false;
         let startX, startY, initialX, initialY;
 
@@ -50,7 +47,6 @@
                 btn.onpointermove = null;
                 btn.onpointerup = null;
                 
-                // မရွှေ့ဘဲ ရိုးရိုးနှိပ်ရင် AI အလုပ်လုပ်မည်
                 if (!isDragging) {
                     triggerAI(box);
                 }
@@ -58,13 +54,11 @@
         };
     }
 
-    // AI က လက်ရှိ Page ကို ဖတ်ပြီး အဖြေတောင်းမည့် Function
     async function triggerAI(box) {
         box.classList.remove('hidden');
         const outputDiv = document.getElementById('ai-output-content');
         outputDiv.innerText = "လက်ရှိ Page အား AI က လေ့လာနေပါသည်...";
 
-        // Vue App ထဲက စာသားအားလုံးကို ဆွဲယူခြင်း
         const pageContent = document.body.innerText || "";
 
         try {
@@ -78,16 +72,17 @@
             
             if (data.error) {
                 outputDiv.innerText = "Error: " + data.error;
+                alert("Vercel Backend Error: " + data.error); // ⚠️ ဘာအမှားလဲသိရအောင် Alert ထည့်ထားသည်
             } else {
                 outputDiv.innerText = data.reply;
             }
         } catch (error) {
             console.error("Error:", error);
-            outputDiv.innerText = "ချိတ်ဆက်မှု မအောင်မြင်ပါ။ Vercel Variables ကို စစ်ပေးပါ။";
+            outputDiv.innerText = "ချိတ်ဆက်မှု မအောင်မြင်ပါ။ Vercel Dashboard တွင် GEMINI_API_KEY ထည့်ထားလား ပြန်စစ်ပေးပါ။";
+            alert("Fetch Error: အနောက်ကွယ်က /api/gemini.js ဖိုင်ကို လှမ်းခေါ်လို့မရပါ။");
         }
     }
 
-    // စတင် Run ချိန်တွင် ချိတ်ဆက်မှု လုပ်ဆောင်ခြင်း
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', setupAI);
     } else {
