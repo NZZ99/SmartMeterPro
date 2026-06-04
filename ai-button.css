@@ -1,0 +1,61 @@
+/* Floating Button - ညာဘက်အလယ် */
+#ai-floating-btn {
+    position: fixed;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    width: 60px;
+    height: 60px;
+    background-color: rgba(0, 0, 0, 0.75);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: move; /* ရွှေ့လို့ရတဲ့ ပုံစံပြောင်းတာ */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    z-index: 9999;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    border: 2px solid rgba(255,255,255,0.2);
+    user-select: none; /* စာသားတွေကို select မဖြစ်အောင် */
+    touch-action: none; /* ဖုန်းမှာပါ Drag ဆွဲလို့ရအောင် */
+}
+
+/* Response Box */
+#ai-response-box {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 320px;
+    max-height: 450px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+    z-index: 9999;
+    overflow: hidden;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+.ai-box-header {
+    background: #222;
+    color: white;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+}
+
+#ai-output-content {
+    padding: 15px;
+    max-height: 380px;
+    overflow-y: auto;
+    color: #333;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.hidden {
+    display: none !important;
+}
