@@ -1,59 +1,62 @@
-/* Floating Button - ညာဘက်အလယ် */
+/* Floating Button - ညာဘက်အလယ် ကွက်တိပေါ်ရန် */
 #ai-floating-btn {
-    position: fixed;
-    top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
-    width: 60px;
-    height: 60px;
-    background-color: rgba(0, 0, 0, 0.75);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: move; /* ရွှေ့လို့ရတဲ့ ပုံစံပြောင်းတာ */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    z-index: 9999;
-    font-family: Arial, sans-serif;
-    font-weight: bold;
-    border: 2px solid rgba(255,255,255,0.2);
-    user-select: none; /* စာသားတွေကို select မဖြစ်အောင် */
-    touch-action: none; /* ဖုန်းမှာပါ Drag ဆွဲလို့ရအောင် */
+    position: fixed !important;
+    top: 50% !important;
+    right: 20px !important;
+    left: auto !important;
+    transform: translateY(-50%) !important;
+    width: 60px !important;
+    height: 60px !important;
+    background-color: rgba(0, 0, 0, 0.85) !important;
+    color: #ffffff !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    cursor: move !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
+    z-index: 999999 !important; /* မင်းရဲ့ မီးကြိုးဝိုင်းထက် ပိုပေါ်စေရန် */
+    font-family: Arial, sans-serif !important;
+    font-weight: bold !important;
+    font-size: 16px !important;
+    border: 2px solid rgba(255,255,255,0.3) !important;
+    user-select: none !important;
+    touch-action: none !important;
 }
 
 /* Response Box */
 #ai-response-box {
-    position: fixed;
-    bottom: 100px;
-    right: 30px;
-    width: 320px;
-    max-height: 450px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 5px 25px rgba(0,0,0,0.3);
-    z-index: 9999;
-    overflow: hidden;
-    font-family: sans-serif;
-    display: flex;
-    flex-direction: column;
+    position: fixed !important;
+    bottom: 100px !important;
+    right: 30px !important;
+    left: auto !important;
+    width: 320px !important;
+    max-height: 450px !important;
+    background: white !important;
+    border-radius: 12px !important;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.4) !important;
+    z-index: 999999 !important;
+    overflow: hidden !important;
+    font-family: sans-serif !important;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 .ai-box-header {
-    background: #222;
-    color: white;
-    padding: 12px;
-    display: flex;
-    justify-content: space-between;
+    background: #222 !important;
+    color: white !important;
+    padding: 12px !important;
+    display: flex !important;
+    justify-content: space-between !important;
 }
 
 #ai-output-content {
-    padding: 15px;
-    max-height: 380px;
-    overflow-y: auto;
-    color: #333;
-    font-size: 14px;
-    line-height: 1.6;
+    padding: 15px !important;
+    max-height: 380px !important;
+    overflow-y: auto !important;
+    color: #333 !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
 }
 
 .hidden {
