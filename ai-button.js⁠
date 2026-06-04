@@ -1,0 +1,80 @@
+const btn = document.getElementById('ai-floating-btn');
+const box = document.getElementById('ai-response-box');
+let isDragging = false;
+let startX, startY, initialX, initialY;
+
+// --- ၁။ Drag & Drop Function (iPhone AssistiveTouch စတိုင်) ---
+btn.addEventListener('pointerdown', (e) => {
+    isDragging = false;
+    startX = e.clientX;
+    startY = e.clientY;
+    
+    const rect = btn.getBoundingClientRect();
+    initialX = rect.left;
+    initialY = rect.top;
+    
+    btn.setPointerCapture(e.pointerId);
+    
+    function onPointerMove(ev) {
+        const dx = ev.clientX - startX;
+        const dy = ev.clientY - startY;
+        
+        // ဖိဆွဲတဲ့အခါ တကယ်ရွေ့လျားမှုရှိမှ Drag လို့ သတ်မှတ်မယ်
+        if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+            isDragging = true;
+        }
+        
+        btn.style.left = `${initialX + dx}px`;
+        btn.style.top = `${initialY + dy}px`;
+        btn.style.right = 'auto';
+        btn.style.bottom = 'auto';
+        btn.style.transform = 'none';
+    }
+    
+    function onPointerUp() {
+        btn.removeEventListener('pointermove', onPointerMove);
+        btn.removeEventListener('pointerup', onPointerUp);
+        
+        // ရွှေ့ရုံတင်မဟုတ်ဘဲ ရိုးရိုး Click နှိပ်လိုက်တာဆိုရင် AI Box ဖွင့်မယ်
+        if (!isDragging) {
+            triggerAI();
+        }
+    }
+    
+    btn.addEventListener('pointermove', onPointerMove);
+    btn.addEventListener('pointerup', onPointerUp);
+});
+
+// --- ၂။ AI အလုပ်လုပ်မည့် Function (Page စာသားများကို ဖတ်ခြင်း) ---
+function closeAIBox() {
+    box.classList.add('hidden');
+}
+
+async function triggerAI() {
+    box.classList.remove('hidden');
+    const outputDiv = document.getElementById('ai-output-content');
+    outputDiv.innerText = "လက်ရှိ Page အား AI က လေ့လာနေပါသည်...";
+
+    // မင်းရဲ့ Page ထဲမှာရှိတဲ့ စာသားအားလုံး (innerText) ကို အလိုအလျောက် ဆွဲယူခြင်း
+    const pageContent = document.body.innerText || "";
+
+    try {
+        // Vercel Backend ဆီကို လက်ရှိ Page ကစာတွေပါ ပို့ပေးလိုက်မယ်
+        const response = await fetch('/api/gemini', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ context: pageContent })
+        });
+        
+        const data = await response.json();
+        
+        if (data.error) {
+            outputDiv.innerText = "Error: " + data.error;
+        } else {
+            outputDiv.innerText = data.reply;
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        outputDiv.innerText = "ချိတ်ဆက်မှု မအောင်မြင်ပါ။";
+    }
+}
