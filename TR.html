@@ -137,13 +137,9 @@
 
     // Smart back and tab close logic to prevent Web App from restarting
     function goBackOrClose() {
-      // အကယ်၍ tab/window အသစ်ဖြင့် ပွင့်နေပါက တိုက်ရိုက်ပိတ်လိုက်မည်
-      if (window.opener || window.history.length === 1) {
-        window.close();
-      } else {
-        // သာမန်အတိုင်း browser back ပြန်ဆုတ်စေပြီး app အစမလည်အောင် ထိန်းသိမ်းပါသည်
-        window.history.back();
-      }
+      // main.html ကို reload မဖြစ်စေဘဲ ဖွင့်ထားဆဲ browser tab အသစ်ကို တိုက်ရိုက်ပိတ်ခိုင်းလိုက်ခြင်း ဖြစ်သည်
+      // ၎င်းကြောင့် မူရင်း Web App သည် ဝင်ကြည့်ထားသည့် အနေအထားအတိုင်း အနောက်တွင် ဆက်ရှိနေမည်ဖြစ်သည်
+      window.close();
     }
 
     // Refresh function to reload the iframe with a timestamp to bypass caching
