@@ -4,16 +4,22 @@
         const box = document.getElementById('ai-response-box');
         const closeBtn = document.getElementById('ai-close-btn');
 
+        // Elements တွေ ပေါ်လာတဲ့အထိ စက္ကန့်ဝက်တစ်ခါ စောင့်ရှာမည်
         if (!btn || !box || !closeBtn) {
             setTimeout(setupAI, 500);
             return;
         }
 
+        // စာမျက်နှာ စဖွင့်ဖွင့်ချင်းမှာ Box ကို အတင်းဖျောက်ထားရန် (အလိုအလျောက် ပွင့်မနေစေရန်)
+        box.classList.add('hidden');
+
+        // ပိတ်သည့်ခလုတ် နှိပ်ပါက ပိတ်ရန်
         closeBtn.onclick = function(e) {
             e.stopPropagation();
             box.classList.add('hidden');
         };
 
+        // --- Drag & Drop Function (iPhone AssistiveTouch စတိုင်) ---
         let isDragging = false;
         let startX, startY, initialX, initialY;
 
@@ -32,6 +38,7 @@
                 const dx = ev.clientX - startX;
                 const dy = ev.clientY - startY;
                 
+                // 5px ထက်ကျော်မှ Drag ဆွဲတယ်လို့ သတ်မှတ်မယ်
                 if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
                     isDragging = true;
                 }
@@ -47,6 +54,7 @@
                 btn.onpointermove = null;
                 btn.onpointerup = null;
                 
+                // Drag မဆွဲဘဲ ကလစ်နှိပ်လိုက်ရုံတင်ဆိုမှ AI Box ကို ဖွင့်ပြီး အလုပ်လုပ်မည်
                 if (!isDragging) {
                     triggerAI(box);
                 }
@@ -54,11 +62,13 @@
         };
     }
 
+    // AI က လက်ရှိ Page ကို ဖတ်ပြီး အဖြေတောင်းမည့် Function
     async function triggerAI(box) {
         box.classList.remove('hidden');
         const outputDiv = document.getElementById('ai-output-content');
         outputDiv.innerText = "လက်ရှိ Page အား AI က လေ့လာနေပါသည်...";
 
+        // Vue App ထဲက စာသားအားလုံးကို ဆွဲယူခြင်း
         const pageContent = document.body.innerText || "";
 
         try {
@@ -72,17 +82,18 @@
             
             if (data.error) {
                 outputDiv.innerText = "Error: " + data.error;
-                alert("Vercel Backend Error: " + data.error); // ⚠️ ဘာအမှားလဲသိရအောင် Alert ထည့်ထားသည်
+                alert("Backend API Error: " + data.error);
             } else {
                 outputDiv.innerText = data.reply;
             }
         } catch (error) {
             console.error("Error:", error);
-            outputDiv.innerText = "ချိတ်ဆက်မှု မအောင်မြင်ပါ။ Vercel Dashboard တွင် GEMINI_API_KEY ထည့်ထားလား ပြန်စစ်ပေးပါ။";
-            alert("Fetch Error: အနောက်ကွယ်က /api/gemini.js ဖိုင်ကို လှမ်းခေါ်လို့မရပါ။");
+            outputDiv.innerText = "ချိတ်ဆက်မှု မအောင်မြင်ပါ။ Vercel Variables သို့မဟုတ် vercel.json ဖိုင်ကို စစ်ပေးပါ။";
+            alert("လိပ်စာ မှားနေပါသည်- /api/gemini ကို ရှာမတွေ့ပါ။ vercel.json ဖိုင် တင်ထားလား စစ်ပါ။");
         }
     }
 
+    // စတင် Run ချိန်တွင် ချိတ်ဆက်မှု လုပ်ဆောင်ခြင်း
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', setupAI);
     } else {
