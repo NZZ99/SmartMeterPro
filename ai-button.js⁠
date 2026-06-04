@@ -1,99 +1,122 @@
-// --- ၁။ HTML Elements များကို JavaScript ကနေ အလိုအလျောက် ဆောက်ပေးခြင်း ---
-document.addEventListener("DOMContentLoaded", () => {
-    // Floating Button ဆောက်ခြင်း
-    const btn = document.createElement('div');
-    btn.id = 'ai-floating-btn';
-    btn.innerText = 'AI';
-    document.body.appendChild(btn);
+(function() {
+    // --- ၁။ ခလုတ်နှင့် Box ကို ဆောက်ပေးမည့် Function ---
+    function initAIComponents() {
+        // ခလုတ် ရှိပြီးသားဆိုရင် ထပ်မဆောက်ဘူး
+        if (document.getElementById('ai-floating-btn')) return;
 
-    // Response Box ဆောက်ခြင်း
-    const box = document.createElement('div');
-    box.id = 'ai-response-box';
-    box.className = 'hidden';
-    box.innerHTML = `
-        <div class="ai-box-header">
-            <span>AI Assistant (Page Review)</span>
-            <button id="ai-close-btn" style="background:none; border:none; color:white; cursor:pointer; font-weight:bold;">X</button>
-        </div>
-        <div id="ai-output-content">ခေတ္တစောင့်ဆိုင်းပေးပါ...</div>
-    `;
-    document.body.appendChild(box);
+        // Floating Button ဆောက်ခြင်း
+        const btn = document.createElement('div');
+        btn.id = 'ai-floating-btn';
+        btn.innerText = 'AI';
+        document.body.appendChild(btn);
 
-    // ပိတ်တဲ့ Button အတွက် Event ချိတ်ခြင်း
-    document.getElementById('ai-close-btn').addEventListener('click', () => {
-        box.classList.add('hidden');
-    });
+        // Response Box ဆောက်ခြင်း
+        const box = document.createElement('div');
+        box.id = 'ai-response-box';
+        box.className = 'hidden';
+        box.innerHTML = `
+            <div class="ai-box-header">
+                <span>AI Assistant (Page Review)</span>
+                <button id="ai-close-btn" style="background:none; border:none; color:white; cursor:pointer; font-weight:bold; font-size:16px;">X</button>
+            </div>
+            <div id="ai-output-content">ခေတ္တစောင့်ဆိုင်းပေးပါ...</div>
+        `;
+        document.body.appendChild(box);
 
-    // --- ၂။ Drag & Drop Function (iPhone AssistiveTouch စတိုင်) ---
-    let isDragging = false;
-    let startX, startY, initialX, initialY;
-
-    btn.addEventListener('pointerdown', (e) => {
-        isDragging = false;
-        startX = e.clientX;
-        startY = e.clientY;
-        
-        const rect = btn.getBoundingClientRect();
-        initialX = rect.left;
-        initialY = rect.top;
-        
-        btn.setPointerCapture(e.pointerId);
-        
-        function onPointerMove(ev) {
-            const dx = ev.clientX - startX;
-            const dy = ev.clientY - startY;
-            
-            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
-                isDragging = true;
-            }
-            
-            btn.style.left = `${initialX + dx}px`;
-            btn.style.top = `${initialY + dy}px`;
-            btn.style.right = 'auto';
-            btn.style.bottom = 'auto';
-            btn.style.transform = 'none';
-        }
-        
-        function onPointerUp() {
-            btn.removeEventListener('pointermove', onPointerMove);
-            btn.removeEventListener('pointerup', onPointerUp);
-            
-            // မရွှေ့ဘဲ ရိုးရိုးနှိပ်ရင် AI အလုပ်လုပ်မယ်
-            if (!isDragging) {
-                triggerAI(box);
-            }
-        }
-        
-        btn.addEventListener('pointermove', onPointerMove);
-        btn.addEventListener('pointerup', onPointerUp);
-    });
-});
-
-// --- ၃။ AI အလုပ်လုပ်မည့် Function (Page စာသားများကို ဖတ်ခြင်း) ---
-async function triggerAI(box) {
-    box.classList.remove('hidden');
-    const outputDiv = document.getElementById('ai-output-content');
-    outputDiv.innerText = "လက်ရှိ Page အား AI က လေ့လာနေပါသည်...";
-
-    // လက်ရှိ Page ထဲမှာရှိတဲ့ စာသားအားလုံးကို ဆွဲယူခြင်း
-    const pageContent = document.body.innerText || "";
-
-    try {
-        const response = await fetch('/api/gemini', {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ context: pageContent })
+        // ပိတ်သည့် Button ပွဲချက်
+        document.getElementById('ai-close-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            box.classList.add('hidden');
         });
-        
-        const data = await response.json();
-        
-        if (data.error) {
-            outputDiv.innerText = "Error: " + data.error;
-        } else {
-            outputDiv.innerText = data.reply;
-        }
-    } catch (error) {
-        console.error("Error:", error);
-        outputDiv.innerText = "ချိတ်ဆက်မှု မအောင်မြင်ပါ။";
+
+        // --- ၂။ Drag & Drop Logic (iPhone AssistiveTouch) ---
+        let isDragging = false;
+        let startX, startY, initialX, initialY;
+
+        btn.addEventListener('pointerdown', (e) => {
+            isDragging = false;
+            startX = e.clientX;
+            startY = e.clientY;
+            
+            const rect = btn.getBoundingClientRect();
+            initialX = rect.left;
+            initialY = rect.top;
+            
+            btn.setPointerCapture(e.pointerId);
+            
+            function onPointerMove(ev) {
+                const dx = ev.clientX - startX;
+                const dy = ev.clientY - startY;
+                
+                if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                    isDragging = true;
+                }
+                
+                btn.style.left = `${initialX + dx}px`;
+                btn.style.top = `${initialY + dy}px`;
+                btn.style.right = 'auto';
+                btn.style.bottom = 'auto';
+                btn.style.transform = 'none';
+            }
+            
+            function onPointerUp() {
+                btn.removeEventListener('pointermove', onPointerMove);
+                btn.removeEventListener('pointerup', onPointerUp);
+                
+                // မရွှေ့ဘဲ နှိပ်ရုံတင်ဆိုရင် AI အလုပ်လုပ်မည်
+                if (!isDragging) {
+                    triggerAI(box);
+                }
+            }
+            
+            btn.addEventListener('pointermove', onPointerMove);
+            btn.addEventListener('pointerup', onPointerUp);
+        });
     }
-}
+
+    // --- ၃။ AI က လက်ရှိ Page ကို ဖတ်ပြီး အဖြေတောင်းမည့် Function ---
+    async function triggerAI(box) {
+        box.classList.remove('hidden');
+        const outputDiv = document.getElementById('ai-output-content');
+        outputDiv.innerText = "လက်ရှိ Page အား AI က လေ့လာနေပါသည်...";
+
+        // လက်ရှိမြင်နေရတဲ့ Page တစ်ခုလုံးက Text တွေကို ဆွဲယူခြင်း
+        const pageContent = document.body.innerText || "";
+
+        try {
+            const response = await fetch('/api/gemini', {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ context: pageContent })
+            });
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                outputDiv.innerText = "Error: " + data.error;
+            } else {
+                outputDiv.innerText = data.reply;
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            outputDiv.innerText = "ချိတ်ဆက်မှု မအောင်မြင်ပါ။ Vercel Environment Variables ကို ပြန်စစ်ပါ။";
+        }
+    }
+
+    // --- ၄။ [အဓိကအဆင့်] SPA Page Router များကြောင့် ပျောက်မသွားအောင် စောင့်ကြည့်စနစ် ---
+    // စတင် Run တဲ့အချိန်မှာ ဆောက်ပေးတယ်
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAIComponents);
+    } else {
+        initAIComponents();
+    }
+
+    // Page ချိန်းလို့ Body ထဲက Content တွေပြောင်းသွားရင် ခလုတ်ပြန်ဆောက်ပေးဖို့ စောင့်ကြည့်ခြင်း
+    const observer = new MutationObserver(() => {
+        initAIComponents();
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+
+    // အခြား Script တွေနဲ့ မငြိအောင် ၅ စက္ကန့်တစ်ခါ Auto-check လုပ်ပေးမည့် Backup စနစ်
+    setInterval(initAIComponents, 5000);
+})();
