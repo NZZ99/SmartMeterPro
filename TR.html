@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="my">
 <head>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <meta charset="UTF-8">
   <!-- maximum-scale=1.0 နှင့် user-scalable=no တို့ကြောင့် ဖုန်း browser ထဲတွင် zoom ဆွဲ၍မရအောင် လုံးဝပိတ်ဆို့ထားပါသည် -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -165,5 +166,21 @@
       }, 1000);
     }
   </script>
+  <!-- သင့်ရဲ့ မူရင်း content များ... -->
+
+  <!-- ဒီနေရာမှာ လာထည့်ပါ -->
+  <script>
+    lucide.createIcons(); // Icon တွေ အသက်သွင်းဖို့
+
+    function goBack() {
+      if (document.referrer !== "") {
+        window.history.back(); // မူရင်း page အတိုင်း back ဆုတ်ရန်
+      } else {
+        window.location.href = "index.html"; // Back ဆုတ်စရာမရှိရင် ပို့ပေးမယ့်နေရာ
+      }
+    }
+  </script>
+</body>
+</html>
 </body>
 </html>
