@@ -1,9 +1,0 @@
-<div id="ai-floating-btn">AI</div>
-
-<div id="ai-response-box" class="hidden">
-    <div class="ai-box-header">
-        <span>AI Assistant (Page Review)</span>
-        <button onclick="closeAIBox()" style="background:none; border:none; color:white; cursor:pointer; font-weight:bold;">X</button>
-    </div>
-    <div id="ai-output-content">ခေတ္တစောင့်ဆိုင်းပေးပါ...</div>
-</div>
