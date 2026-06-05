@@ -28,6 +28,12 @@
     // ၂။ CSS Style ကို JavaScript သုံးပြီး Header ထဲသို့ Dynamic ထည့်သွင်းခြင်း
     const style = document.createElement('style');
     style.textContent = `
+        /* လျှပ်စီးပုံစံ (Zap Icon) လည်ပတ်စေရန် keyframes */
+        @keyframes spin-zap {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         .floating-touch-btn {
             position: fixed;
             top: 50%;
@@ -82,6 +88,11 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+        }
+
+        /* ဤနေရာတွင် SVG ပုံရိပ်အား အမြဲတမ်းပတ်ချာလည်စေရန် Animation ချိတ်ဆက်ထားပါသည် */
+        .zap-icon-circle svg {
+            animation: spin-zap 2s linear infinite;
         }
 
         .touch-btn-text {
