@@ -27,6 +27,11 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
     <style>
+        /* ဒေါ်လာအိုင်ကွန် လည်ပတ်စေရန် keyframes */
+@keyframes spin-dollar {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: #060B18;
@@ -168,6 +173,10 @@
             font-weight: 800;
             text-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
         }
+        /* badge-dollar-sign အိုင်ကွန်အား Animation ချိတ်ဆက်ခြင်း */
+[data-lucide="badge-dollar-sign"] {
+    animation: spin-dollar 3s linear infinite;
+}
     </style>
 </head>
 <body>
