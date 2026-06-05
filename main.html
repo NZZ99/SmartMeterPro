@@ -27,6 +27,23 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
     <style>
+        /* မီးသီးအိုင်ကွန် အနောက်ကနေ မီးရောင်ဖြာထွက်စေရန် keyframes */
+@keyframes lightbulb-glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 2px rgba(250, 204, 21, 0.4)) 
+                drop-shadow(0 0 8px rgba(234, 179, 8, 0.6));
+        color: #facc15; /* ဝါဝင်းသောအရောင် */
+    }
+    50% {
+        filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.8)) 
+                drop-shadow(0 0 18px rgba(234, 179, 8, 1));
+        color: #fef08a; /* ပိုလင်းသော ဝါကြန့်ကြန့်အရောင် */
+    }
+}
+        /* Lightbulb icon ကို မီးရောင်တောက်လှုပ်ရှားမှု ချိတ်ဆက်ခြင်း */
+[data-lucide="lightbulb"] {
+    animation: lightbulb-glow 2s ease-in-out infinite alternate;
+}
         /* ဒေါ်လာအိုင်ကွန် လည်ပတ်စေရန် keyframes */
 @keyframes spin-dollar {
     from { transform: rotate(0deg); }
