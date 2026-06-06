@@ -20,6 +20,9 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
         /* Sagittarius icon အနောက်ကနေ ခရမ်းရောင်မီးရောင်ဖြာထွက်စေရန် keyframes */
 @keyframes sagittarius-glow {
@@ -656,15 +659,6 @@
             setup(); animate();
             window.addEventListener('resize', setup);
         }
-        <script src="https://unpkg.com/vue@3/dist/vue.global.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js" defer></script>
-    <script src="https://unpkg.com/lucide@latest" defer></script>
-
-    <script>
-        const { createApp, ref, reactive, onMounted, watch, nextTick } = Vue;
-        // ... (အလယ်က ကုဒ်တွေ အားလုံး အတိုင်းပါပဲ၊ ဘာမှ ပြင်စရာမလိုပါ) ...
-        
-        // ... starCanvas အလုပ်လုပ်တဲ့ Function တွေအထိ ပုံမှန်အတိုင်း ထားပါ ...
     </script>
     <script src="script.js"></script>
     <!-- main.html ရဲ့ အောက်ဆုံး </body> မပိတ်ခင်လေးမှာ ဒါကို ထည့်ပါ -->
