@@ -4,7 +4,7 @@
     <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="Nyizaw.PNG">
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-4SH4F0JHWC"></script>
+<script async src defer src="https://www.googletagmanager.com/gtag/js?id=G-4SH4F0JHWC"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -20,30 +20,7 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- PapaParse for CSV -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <!-- Vue 3 for State Management -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-
     <style>
-        /* CPU icon အနောက်ကနေ အစိမ်းရောင်မီးရောင်ဖြာထွက်စေရန် keyframes */
-@keyframes cpu-glow {
-    0%, 100__ {
-        filter: drop-shadow(0 0 2px rgba(34, 197, 94, 0.4)) 
-                drop-shadow(0 0 8px rgba(22, 163, 74, 0.6));
-        color: #4ade80; /* အစိမ်းနုရောင် */
-    }
-    50% {
-        filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.8)) 
-                drop-shadow(0 0 18px rgba(22, 163, 74, 1));
-        color: #bbf7d0; /* ပိုလင်းသော စိမ်းဝါရောင် */
-    }
-}
-        /* CPU icon ကို မီးရောင်တောက်လှုပ်ရှားမှု ချိတ်ဆက်ခြင်း */
-[data-lucide="cpu"] {
-    animation: cpu-glow 2s ease-in-out infinite alternate;
-}
         /* Sagittarius icon အနောက်ကနေ ခရမ်းရောင်မီးရောင်ဖြာထွက်စေရန် keyframes */
 @keyframes sagittarius-glow {
     0%, 100% {
@@ -679,6 +656,15 @@
             setup(); animate();
             window.addEventListener('resize', setup);
         }
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js" defer></script>
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+
+    <script>
+        const { createApp, ref, reactive, onMounted, watch, nextTick } = Vue;
+        // ... (အလယ်က ကုဒ်တွေ အားလုံး အတိုင်းပါပဲ၊ ဘာမှ ပြင်စရာမလိုပါ) ...
+        
+        // ... starCanvas အလုပ်လုပ်တဲ့ Function တွေအထိ ပုံမှန်အတိုင်း ထားပါ ...
     </script>
     <script src="script.js"></script>
     <!-- main.html ရဲ့ အောက်ဆုံး </body> မပိတ်ခင်လေးမှာ ဒါကို ထည့်ပါ -->
