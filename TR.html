@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="my">
 <head>
+  <script>
+  // သင့်ရဲ့ Web App URL ကို ဒီမှာ အစားထိုးပါ
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbxS2xFGdArrnpvui4PbR_IWLTQMTZ4SiZZCBeAGC9cQaKSvf5c_ayCY3xO-VPYIBcQF/exec'; 
+
+  // Website စပွင့်တာနဲ့ ချက်ချင်း (၃ စက္ကန့်အတွင်း) Data လှမ်းပို့မယ့် Code ပါ
+  (function logQuickVisit() {
+    fetch(scriptURL, { 
+      method: 'POST',
+      mode: 'no-cors' 
+    }).catch(error => console.error('Error:', error));
+  })();
+</script>
   <meta charset="UTF-8">
   <!-- maximum-scale=1.0 နှင့် user-scalable=no တို့ကြောင့် ဖုန်း browser ထဲတွင် zoom ဆွဲ၍မရအောင် လုံးဝပိတ်ဆို့ထားပါသည် -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -129,23 +141,10 @@
     // Initialize scaling when iframe finishes loading
     function initSheetScaling() {
       hideLoading();
-      logVisitTime();
       applyScaling();
       
       // Re-calculate scaling when window resizes
       window.addEventListener('resize', applyScaling);
-    }
-function logVisitTime() {
-      // ⚠️ အောက်က URL နေရာမှာ ခုနက ရလာတဲ့ Deployment URL အသစ်ကို အစားထိုးပါ
-      const WEB_APP_URL = "သင့်ရဲ့_WEB_APP_URL_အသစ်ကို_ဒီမှာထည့်ပါ"; 
-      
-      const userAgent = encodeURIComponent(navigator.userAgent);
-      
-      // ပိုမိုသေချာပြီး ချက်ချင်းဒေတာရောက်စေမည့် Image Beacon နည်းလမ်းဖြင့် ပို့ခြင်း
-      const finalUrl = `${WEB_APP_URL}?userAgent=${userAgent}&t=${new Date().getTime()}`;
-      
-      const img = new Image();
-      img.src = finalUrl;
     }
     function goBackOrClose() {
       // main.html ကို reload မဖြစ်စေဘဲ ဖွင့်ထားဆဲ browser tab အသစ်ကို တိုက်ရိုက်ပိတ်ခိုင်းလိုက်ခြင်း ဖြစ်သည်
