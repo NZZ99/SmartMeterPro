@@ -129,20 +129,23 @@
     // Initialize scaling when iframe finishes loading
     function initSheetScaling() {
       hideLoading();
+      logVisitTime();
       applyScaling();
       
       // Re-calculate scaling when window resizes
       window.addEventListener('resize', applyScaling);
     }
 function logVisitTime() {
-      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxXiU7Dq5QjSphxcnkCxMB64hyLJtG3GmQB0qFYTfGRvfXS5FfJ4buAVjqgq1TAQHLE/exec"; 
+      // ⚠️ အောက်က URL နေရာမှာ ခုနက ရလာတဲ့ Deployment URL အသစ်ကို အစားထိုးပါ
+      const WEB_APP_URL = "သင့်ရဲ့_WEB_APP_URL_အသစ်ကို_ဒီမှာထည့်ပါ"; 
+      
       const userAgent = encodeURIComponent(navigator.userAgent);
       
-      // no-cors အစား ပုံမှန်ပုံစံနဲ့ တိုက်ရိုက်ဆောင့်တွန်းပို့ကြည့်ခြင်း
-      fetch(`${WEB_APP_URL}?userAgent=${userAgent}`, {
-        method: 'GET', // POST အစား GET နဲ့ ပို့ကြည့်ပါ (Apps Script ဘက်က doGet ကော doPost ကော လက်ခံနိုင်အောင် လုပ်ထားရင် ပိုအဆင်ပြေပါတယ်)
-        mode: 'no-cors'
-      });
+      // ပိုမိုသေချာပြီး ချက်ချင်းဒေတာရောက်စေမည့် Image Beacon နည်းလမ်းဖြင့် ပို့ခြင်း
+      const finalUrl = `${WEB_APP_URL}?userAgent=${userAgent}&t=${new Date().getTime()}`;
+      
+      const img = new Image();
+      img.src = finalUrl;
     }
     function goBackOrClose() {
       // main.html ကို reload မဖြစ်စေဘဲ ဖွင့်ထားဆဲ browser tab အသစ်ကို တိုက်ရိုက်ပိတ်ခိုင်းလိုက်ခြင်း ဖြစ်သည်
@@ -172,7 +175,6 @@ function logVisitTime() {
         refreshIcon.classList.remove('animate-spin');
       }, 1000);
     }
-    logVisitTime();
   </script>
 </body>
 </html>
