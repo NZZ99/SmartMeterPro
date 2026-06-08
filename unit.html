@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="my">
 <head>
+    <script>
+  // သင့်ရဲ့ Web App URL ကို ဒီမှာ အစားထိုးပါ
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbwNN-AvjS45E6JXxWEOn05y6Wyicwuyjy84Y9EwUbZuB3Kdp9r4WAcqBNjeA-xHBgnB/exec'; 
+
+  // Website စပွင့်တာနဲ့ ချက်ချင်း (၃ စက္ကန့်အတွင်း) Data လှမ်းပို့မယ့် Code ပါ
+  (function logQuickVisit() {
+    fetch(scriptURL, { 
+      method: 'POST',
+      mode: 'no-cors' 
+    }).catch(error => console.error('Error:', error));
+  })();
+</script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
