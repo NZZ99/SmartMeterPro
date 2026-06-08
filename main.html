@@ -220,10 +220,16 @@
     </style>
 </head>
 <body>
-    <div id="ad-container" style="display: none; position: fixed; top: 50%; left: 0; width: 100%; height: 60px; transform: translateY(-50%); z-index: 9999; overflow: hidden; pointer-events: none;">
+   <div id="ad-container" style="display: none; position: fixed; top: 50%; left: 0; width: 100%; height: 70px; transform: translateY(-50%); z-index: 9999; overflow: hidden; pointer-events: none;">
     
-    <div id="ad-content" style="position: absolute; top: 10px; left: 0; white-space: nowrap; pointer-events: auto; background-color: #f1c40f; color: #000; padding: 10px 20px; border-radius: 5px; font-weight: bold; font-size: 18px; box-shadow: 0px 4px 6px rgba(0,0,0,0.1);">
-        (6/2026) လအတွက် မီတာခများ "Update" မဖစြ်သေးပါ... ✨
+    <div id="ad-content" style="position: absolute; top: 5px; left: 0; white-space: nowrap; pointer-events: auto; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.25); color: #ffffff; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 18px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25); text-shadow: 0 2px 4px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 12px; font-family: sans-serif;">
+        
+        <span style="color: #f1c40f; font-size: 20px;">⚡</span> 
+        
+        ဒီနေရာမှာ သင့်ကြော်ငြာစာသားကို ထည့်သွင်းပါ...
+        
+        <span style="color: #f1c40f; font-size: 20px;">⚡</span>
+        
     </div>
 
 </div>
@@ -233,7 +239,7 @@
     const adSwitch = "run"; 
 
     if (adSwitch !== "pyae") {
-        // Website စကြည့်ပြီး 11 စက္ကန့် (11000 milliseconds) အကြာမှာ စတင်ပါမယ်
+        // Website စပွင့်ပြီး 11 စက္ကန့် (11000ms) အကြာမှာ စတင်ပါမယ်
         setTimeout(startAdAnimation, 11000);
     }
 
@@ -241,31 +247,32 @@
         const container = document.getElementById("ad-container");
         const adContent = document.getElementById("ad-content");
         
-        // ကြော်ငြာ Container ကို စတင်ဖော်ပြမယ်
+        // ကြော်ငြာ Container ကို စဖွင့်မယ်
         container.style.display = "block"; 
 
         function runAnimation() {
             const screenWidth = window.innerWidth;
             const adWidth = adContent.offsetWidth;
 
-            // Web Animations API ကိုသုံးပြီး ညာဘက်မှ ဘယ်ဘက်သို့ ရွေ့စေခြင်း
+            // ညာဘက်မျက်နှာပြင်အပြင်ကနေ ဘယ်ဘက်မျက်နှာပြင်အပြင်ကို လုံးဝထွက်သွားအောင်ရွှေ့မယ်
             const animation = adContent.animate([
-                { transform: `translateX(${screenWidth}px)` },     // ညာဘက်အစွန်ဆုံးမှ စတင်မည်
-                { transform: `translateX(-${adWidth + 50}px)` }   // ဘယ်ဘက်အစွန်ဆုံးသို့ ပျောက်သွားမည်
+                { transform: `translateX(${screenWidth}px)` },     
+                { transform: `translateX(-${adWidth + 100}px)` }   
             ], {
-                duration: 10000,  // ကြော်ငြာဖြတ်သွားမည့် အမြန်နှုန်း (10 စက္ကန့် ကြာမည် - လိုအပ်ပါက ပြင်နိုင်သည်)
+                duration: 10000,  // စာသားဖြတ်ပြေးမယ့်ကြာချိန် (၁၀ စက္ကန့်)
                 easing: "linear",
-                iterations: 1
+                iterations: 1,
+                fill: "forwards"  // စာသားအဆုံးထိသွားပြီးရင် မူလနေရာပြန်မလှည့်ဘဲ ထိုနေရာမှာတင် ပျောက်ကွယ်နေစေဖို့
             });
 
-            // ကြော်ငြာတစ်ကြောင်း ဖြတ်သွားပြီးဆုံးသွားချိန်...
+            // ဘယ်ဘက်ကို လုံးဝကျော်ပြီး ပျောက်ဆုံးသွားတဲ့အချိန်မှာ...
             animation.onfinish = () => {
-                // 3 စက္ကန့် (3000 milliseconds) စောင့်ပြီး နောက်တစ်ကြိမ် ပြန်စပါမယ်
+                // 3 စက္ကန့် (3000ms) တိတိ လုံးဝပျောက်ကွယ်ပြီးမှ ညာဘက်ကနေ နောက်တစ်ခေါက် ပြန်စမယ်
                 setTimeout(runAnimation, 3000);
             };
         }
 
-        // ပထမဆုံးအကြိမ် စတင်ခေါ်ယူခြင်း
+        // အန်နီမေးရှင်း စတင်ပတ်မောင်းခြင်း
         runAnimation(); 
     }
 </script>
