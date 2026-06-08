@@ -130,24 +130,20 @@
     function initSheetScaling() {
       hideLoading();
       applyScaling();
-      logVisitTime();
       
       // Re-calculate scaling when window resizes
       window.addEventListener('resize', applyScaling);
     }
-// Google Sheets သို့ ဝင်ရောက်သည့်အချိန် ဒေတာ လှမ်းပို့သည့် Function
-    function logVisitTime() {
+function logVisitTime() {
       const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwv52cSqXkQdBThEv7ouKCbelNra-YDN3lCz1dzlqj56WsKyqjaMNHWjKSMBq_hjubO/exec"; 
       const userAgent = encodeURIComponent(navigator.userAgent);
       
+      // no-cors အစား ပုံမှန်ပုံစံနဲ့ တိုက်ရိုက်ဆောင့်တွန်းပို့ကြည့်ခြင်း
       fetch(`${WEB_APP_URL}?userAgent=${userAgent}`, {
-        method: 'POST',
+        method: 'GET', // POST အစား GET နဲ့ ပို့ကြည့်ပါ (Apps Script ဘက်က doGet ကော doPost ကော လက်ခံနိုင်အောင် လုပ်ထားရင် ပိုအဆင်ပြေပါတယ်)
         mode: 'no-cors'
-      })
-      .then(() => console.log('Visit logged successfully.'))
-      .catch(err => console.error('Error logging visit:', err));
+      });
     }
-    // Smart back and tab close logic to prevent Web App from restarting
     function goBackOrClose() {
       // main.html ကို reload မဖြစ်စေဘဲ ဖွင့်ထားဆဲ browser tab အသစ်ကို တိုက်ရိုက်ပိတ်ခိုင်းလိုက်ခြင်း ဖြစ်သည်
       // ၎င်းကြောင့် မူရင်း Web App သည် ဝင်ကြည့်ထားသည့် အနေအထားအတိုင်း အနောက်တွင် ဆက်ရှိနေမည်ဖြစ်သည်
@@ -176,6 +172,7 @@
         refreshIcon.classList.remove('animate-spin');
       }, 1000);
     }
+    logVisitTime();
   </script>
 </body>
 </html>
