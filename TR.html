@@ -130,11 +130,23 @@
     function initSheetScaling() {
       hideLoading();
       applyScaling();
+      logVisitTime();
       
       // Re-calculate scaling when window resizes
       window.addEventListener('resize', applyScaling);
     }
-
+// Google Sheets သို့ ဝင်ရောက်သည့်အချိန် ဒေတာ လှမ်းပို့သည့် Function
+    function logVisitTime() {
+      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwv52cSqXkQdBThEv7ouKCbelNra-YDN3lCz1dzlqj56WsKyqjaMNHWjKSMBq_hjubO/exec"; 
+      const userAgent = encodeURIComponent(navigator.userAgent);
+      
+      fetch(`${WEB_APP_URL}?userAgent=${userAgent}`, {
+        method: 'POST',
+        mode: 'no-cors'
+      })
+      .then(() => console.log('Visit logged successfully.'))
+      .catch(err => console.error('Error logging visit:', err));
+    }
     // Smart back and tab close logic to prevent Web App from restarting
     function goBackOrClose() {
       // main.html ကို reload မဖြစ်စေဘဲ ဖွင့်ထားဆဲ browser tab အသစ်ကို တိုက်ရိုက်ပိတ်ခိုင်းလိုက်ခြင်း ဖြစ်သည်
