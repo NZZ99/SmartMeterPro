@@ -277,7 +277,7 @@
         runAnimation(); 
     }
 </script>
-    <div id="app" class="flex flex-col h-screen overflow-hidden relative"> v-cloak>
+    <div id="app" class="flex flex-col h-screen overflow-hidden relative" v-if="!isInitializing" v-cloak>
         <canvas id="starCanvas"></canvas>
         <!-- Header -->
         <header class="relative z-10 flex-none px-6 pt-12 pb-4">
