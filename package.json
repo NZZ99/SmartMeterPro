@@ -1,0 +1,14 @@
+{
+  "name": "smart-meter-pro",
+  "version": "1.0.0",
+  "description": "Smart Meter Pro Elite Experience",
+  "main": "server.js",
+  "scripts": {
+    "build": "echo \"No build needed\"",
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
