@@ -393,8 +393,8 @@
                         <div v-if="searchStates[activeTab].results.length > 0">
                             <div v-for="(res, idx) in searchStates[activeTab].results" :key="idx" class="p-5 mb-4 space-y-4 result-main-card border-white/10">
                                 <div class="p-4 data-box-styled">
-                                    <h4 class="text-lg font-black leading-tight text-blue-400">{{ res['Name'] || '-' }}</h4>
-                                    <p class="text-blue-300/70 text-[11px] mt-1 font-medium italic">{{ res['Address'] || '-' }}</p>
+                                    <h4 class="text-lg font-black leading-tight text-blue-400">{{ activeTab === 'debt' ? (res['Name'] || getColData(res, 7)) : (res['Name'] || '-') }}</h4>
+                                    <p class="text-blue-300/70 text-[11px] mt-1 font-medium italic">{{ activeTab === 'debt' ? (res['Address'] || getColData(res, 8)) : (res['Address'] || '-') }}</p>
                                 </div>
 
                                 <div v-if="activeTab === 'debt'" class="grid grid-cols-2 gap-2">
@@ -408,7 +408,7 @@
                                     </div>
                                     <div class="p-3 data-box-styled">
                                         <p class="text-[7px] text-blue-400/80 uppercase mb-1">Meter No</p>
-                                        <p class="text-[10px] font-bold truncate text-blue-100/90">{{ res['Meter-No'] || '-' }}</p>
+                                        <p class="text-[10px] font-bold truncate text-blue-100/90">{{ res['Meter-No'] || getColData(res, 5) }}</p>
                                     </div>
                                     <div class="p-3 data-box-styled">
                                         <p class="text-[7px] text-blue-400/80 uppercase mb-1">Ledger</p>
@@ -579,46 +579,82 @@
 
                 const loadCSV = async (url, type) => {
                     try {
-                        const CACHE_NAME = 'smart-meter-cache-v1';
+                        const CACHE_NAME = 'smart-meter-cache-v2';
                         const CACHE_TIME_KEY = 'smart-meter-cache-time-' + type;
                         const CACHE_EXPIRY = 12 * 60 * 60 * 1000; // 12 hours
 
-                        const cache = await caches.open(CACHE_NAME);
-                        const cachedResponse = await cache.match(url);
-                        const lastFetchTime = localStorage.getItem(CACHE_TIME_KEY);
-                        const isExpired = !lastFetchTime || (Date.now() - parseInt(lastFetchTime)) > CACHE_EXPIRY;
+                        let responseText = null;
 
-                        let responseToUse = cachedResponse;
+                        // Try reading from cache first if valid
+                        try {
+                            const cache = await caches.open(CACHE_NAME);
+                            const cachedResponse = await cache.match(url);
+                            const lastFetchTime = localStorage.getItem(CACHE_TIME_KEY);
+                            const isExpired = !lastFetchTime || (Date.now() - parseInt(lastFetchTime)) > CACHE_EXPIRY;
 
-                        if (!cachedResponse || isExpired) {
-                            const networkResponse = await fetch(url);
-                            if (networkResponse.ok) {
-                                await cache.put(url, networkResponse.clone());
-                                localStorage.setItem(CACHE_TIME_KEY, Date.now());
-                                responseToUse = networkResponse;
+                            if (cachedResponse && !isExpired) {
+                                responseText = await cachedResponse.text();
+                            }
+                        } catch (e) {
+                            console.warn('Cache read warning:', e);
+                        }
+
+                        // Fetch from network if cache is missing or expired
+                        if (!responseText) {
+                            try {
+                                const networkResponse = await fetch(url);
+                                if (networkResponse.ok) {
+                                    responseText = await networkResponse.text();
+
+                                    // Store in cache without throwing errors on redirected responses
+                                    try {
+                                        const cache = await caches.open(CACHE_NAME);
+                                        const cleanResponse = new Response(responseText, {
+                                            status: 200,
+                                            statusText: 'OK',
+                                            headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+                                        });
+                                        await cache.put(url, cleanResponse);
+                                        localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+                                    } catch (cacheErr) {
+                                        console.warn('Cache write warning:', cacheErr);
+                                    }
+                                }
+                            } catch (netErr) {
+                                console.error('Network fetch error for ' + type, netErr);
+                                // Fallback to cached response if network failed
+                                try {
+                                    const cache = await caches.open(CACHE_NAME);
+                                    const cachedResponse = await cache.match(url);
+                                    if (cachedResponse) {
+                                        responseText = await cachedResponse.text();
+                                    }
+                                } catch (e) {}
                             }
                         }
 
-                        if (!responseToUse) {
+                        if (!responseText) {
                             isDataLoaded.value[type] = true;
                             return;
                         }
 
-                        const blob = await responseToUse.blob();
-
-                        Papa.parse(blob, {
+                        Papa.parse(responseText, {
                             header: false,
                             skipEmptyLines: true,
-                            worker: true,
                             fastMode: true,
                             complete: (results) => {
                                 const rows = results.data;
-                                if (rows.length < 1) { isDataLoaded.value[type] = true; return; }
+                                if (!rows || rows.length < 1) { 
+                                    isDataLoaded.value[type] = true; 
+                                    return; 
+                                }
                                 const hd = rows[0];
                                 const db = rows.slice(1).map(row => {
                                     const obj = {};
-                                    hd.forEach((h, i) => { obj[h] = row[i] || ''; });
-                                    obj._colA = (row[0] || '').toLowerCase(); 
+                                    hd.forEach((h, i) => { 
+                                        if (h) obj[h] = row[i] || ''; 
+                                    });
+                                    obj._colA = (row[0] || '').trim().toLowerCase(); 
                                     obj._fullSearch = row.join(' ').toLowerCase();
                                     obj._row = row;
                                     return obj;
@@ -628,9 +664,13 @@
                                 headers.value[type] = hd;
                                 isDataLoaded.value[type] = true;
                             },
-                            error: () => { isDataLoaded.value[type] = true; }
+                            error: (err) => { 
+                                console.error('Papa parse error for ' + type, err);
+                                isDataLoaded.value[type] = true; 
+                            }
                         });
                     } catch (error) {
+                        console.error('loadCSV error for ' + type, error);
                         isDataLoaded.value[type] = true;
                     }
                 };
@@ -681,7 +721,15 @@
                     if (activeTab.value === 'search') {
                         state.results = searchDatabase.value.filter(item => item._fullSearch.includes(query)).slice(0, 50);
                     } else if (activeTab.value === 'debt') {
-                        state.results = debtDatabase.value.filter(item => item._colA === query).slice(0, 50);
+                        const cleanQuery = query.trim().toLowerCase();
+                        const noZeroQuery = cleanQuery.replace(/^0+/, '');
+                        state.results = debtDatabase.value.filter(item => {
+                            const colA = (item._colA || '').trim().toLowerCase();
+                            const colANoZero = colA.replace(/^0+/, '');
+                            return colA === cleanQuery || 
+                                   (noZeroQuery.length > 0 && colANoZero === noZeroQuery) ||
+                                   item._fullSearch.includes(cleanQuery);
+                        }).slice(0, 50);
                     }
                     nextTick(() => lucide.createIcons());
                 };
